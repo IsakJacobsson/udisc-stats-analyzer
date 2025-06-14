@@ -1,3 +1,4 @@
+import argparse
 import os
 import csv
 from datetime import datetime
@@ -98,6 +99,39 @@ def graph_average(rounds, course_name, layout_name, player_name='all'):
     plt.title(f"Average per hole for {course_name}, {layout_name}")
     plt.show()
 
+def main(args):
+    rounds = load_all_csvs_from_folder(args.csv_dir)
+    graph_average(rounds, args.course, args.layout, args.player)
 
-rounds = load_all_csvs_from_folder("score_cards")
-graph_average(rounds, "Vipan", "Main")
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="UDisc CSV Stats Analyzer — Plot average per hole for course and player"
+    )
+    parser.add_argument(
+        "-d", "--csv-dir",
+        type=str,
+        required=True,
+        help="Path to the directory containing UDisc CSV files"
+    )
+    parser.add_argument(
+        "-c", "--course",
+        type=str,
+        required=True,
+        help="Course name to filter by"
+    )
+    parser.add_argument(
+        "-l", "--layout",
+        type=str,
+        required=True,
+        help="Layout name to filter by"
+    )
+    parser.add_argument(
+        "-u", "--player",
+        type=str,
+        required=False,
+        default="all",
+        help="Player name to filter by (default: all)"
+    )
+
+    args = parser.parse_args()
+    main(args)
