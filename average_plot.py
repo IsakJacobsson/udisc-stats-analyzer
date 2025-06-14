@@ -61,12 +61,12 @@ def graph_average(rounds, course_name, layout_name, player_name='all'):
     par_line = []
     lines = []
     for round in rounds:
+        if round.course_name != course_name or round.layout_name != layout_name:
+            continue
         if round.player_name == 'Par':
             par_line = round.holes
             continue
         if player_name != 'all' and round.player_name != player_name:
-            continue
-        if round.course_name != course_name or round.layout_name != layout_name:
             continue
         lines.append(round.holes)
 
@@ -78,7 +78,11 @@ def graph_average(rounds, course_name, layout_name, player_name='all'):
             if line[hole] != 0:
                 sum_for_hole += line[hole]
                 nbr_lines += 1
-        average_line.append(sum_for_hole/nbr_lines)
+        
+        if sum_for_hole == 0:
+            average_line.append(0)
+        else:
+            average_line.append(sum_for_hole/nbr_lines)
 
     # Convert to a DataFrame with a "Score" label:
     df = pd.DataFrame({
