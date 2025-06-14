@@ -55,3 +55,9 @@ It is also possible to specify a player:
 ```
 python average_plot.py --csv-dir score_cards --course Vipan --layout Main --player 'Isak ”Bush Walker” Jacobsson'
 ```
+
+For more help on how to use the `average_plot.py` script run the help command:
+
+```
+python average_plot.py -h
+```
