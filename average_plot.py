@@ -39,7 +39,7 @@ def load_player_rounds_from_csv(file_path):
             round_rating = float(row['RoundRating']) if row['RoundRating'] else None
 
             number_of_holes = len(row) - 8 # There are 8 feilds before holes
-            holes = [int(row[f'Hole{i}']) for i in range(1, number_of_holes+1)]
+            holes = [int(row[f'Hole{i}']) if int(row[f'Hole{i}']) != 0 else None for i in range(1, number_of_holes+1)]
 
             round_instance = PlayerRound(
                 player_name, course_name, layout_name, start_date, end_date,
@@ -68,39 +68,31 @@ def graph_average(rounds, course_name, layout_name, player_name='all'):
             continue
         if player_name != 'all' and round.player_name != player_name:
             continue
-        lines.append(round.holes)
+        for i, score in enumerate(round.holes):
+            if score is not None:
+                lines.append({
+                    "Hole": i + 1,
+                    "Score": score,
+                    "Player": round.player_name
+                })
 
-    average_line = []
-    for hole in range(len(par_line)):
-        sum_for_hole = 0
-        nbr_lines = 0
-        for line in lines:
-            if line[hole] != 0:
-                sum_for_hole += line[hole]
-                nbr_lines += 1
-        
-        if sum_for_hole == 0:
-            average_line.append(0)
-        else:
-            average_line.append(sum_for_hole/nbr_lines)
+    if not par_line:
+        print("Par line not found")
+        return
 
-    # Convert to a DataFrame with a "Score" label:
-    df = pd.DataFrame({
-        "x": [i + 1 for i in range(len(par_line))] * 2,
-        "y": par_line + average_line,
-        "Score": ["Par"] * len(par_line) + [f"Average: {player_name}"] * len(average_line)
-    })
+    # Create dataframe from player scores
+    df = pd.DataFrame(lines)
 
-    # Plot points only (scatter plot)
-    sns.scatterplot(data=df, x="x", y="y", hue="Score", s=100)  # s=100 makes points bigger
+    # Plot average and standard deviation using seaborn lineplot
+    sns.lineplot(data=df, x="Hole", y="Score", ci="sd", estimator="mean", label=f"Average: {player_name}")
 
-    # Add labels to each point
-    for _, row in df.iterrows():
-        plt.text(row["x"], row["y"], f'{row["y"]:.2f}', 
-             fontsize=10, ha='right', va='bottom')
+    # Overlay Par line
+    plt.plot(range(1, len(par_line) + 1), par_line, label="Par", linestyle="--", color="gray")
 
     plt.ylim(bottom=0)
-    plt.title(f"Average per hole for {course_name}, {layout_name}")
+    plt.title(f"Average per hole CI for {course_name}, {layout_name}")
+    plt.legend()
+    plt.grid(True)
     plt.show()
 
 def main(args):
