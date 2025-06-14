@@ -20,13 +20,13 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-Now install the required Python packages:
+Now, install the required Python packages:
 
 ```
 pip install -r requirements.txt
 ```
 
-Now your Python environment is ready to use UDisc Stats Analyzer!
+Your Python environment is now ready to use UDisc Stats Analyzer!
 
 ### Prepare UDISC CSV files
 
