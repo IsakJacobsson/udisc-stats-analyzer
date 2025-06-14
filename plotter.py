@@ -83,11 +83,11 @@ def graph_average(rounds, course_name, layout_name, player_name='all'):
     df = pd.DataFrame({
         "x": [i + 1 for i in range(len(par_line))] * 2,
         "y": par_line + average_line,
-        "line": ["Par"] * len(par_line) + ["Average"] * len(average_line)
+        "Score": ["Par"] * len(par_line) + [f"Average {player_name}"] * len(average_line)
     })
 
     # Plot points only (scatter plot)
-    sns.scatterplot(data=df, x="x", y="y", hue="line", s=100)  # s=100 makes points bigger
+    sns.scatterplot(data=df, x="x", y="y", hue="Score", s=100)  # s=100 makes points bigger
 
     # Add labels to each point
     for _, row in df.iterrows():
