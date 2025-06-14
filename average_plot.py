@@ -80,11 +80,11 @@ def graph_average(rounds, course_name, layout_name, player_name='all'):
                 nbr_lines += 1
         average_line.append(sum_for_hole/nbr_lines)
 
-    # Convert to a DataFrame with a "line" label:
+    # Convert to a DataFrame with a "Score" label:
     df = pd.DataFrame({
         "x": [i + 1 for i in range(len(par_line))] * 2,
         "y": par_line + average_line,
-        "Score": ["Par"] * len(par_line) + [f"Average {player_name}"] * len(average_line)
+        "Score": ["Par"] * len(par_line) + [f"Average: {player_name}"] * len(average_line)
     })
 
     # Plot points only (scatter plot)
