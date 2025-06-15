@@ -34,30 +34,31 @@ Use the UDisc app to download the CSV files you want to analyze.
 
 Move the CSV files into a separate directory named e.g., `score_cards`.
 
-### Average Plot
+### Course Analysis
 
-Plot the average score for a specific course by running the `average_plot.py`
-script.
+Plot the course analysis for a specific course by running the
+`course_analysis.py` script.
 
-Here is an example use of `average_plot.py` to plot the averages per hole for
+Here is an example use of `course_analysis.py` to plot the averages per hole for
 course "Vipan", layout "Main" for all players:
 
 ```
-python average_plot.py --csv-dir score_cards --course Vipan --layout Main
+python course_analysis.py --csv-dir score_cards --course Vipan --layout Main
 ```
 
 Here is an example of how that graph can look:
 
-![average-plot-demo](docs/average-plot-demo.png)
+![course-analysis-demo](docs/course-analysis-demo.png)
 
 It is also possible to specify a player:
 
 ```
-python average_plot.py --csv-dir score_cards --course Vipan --layout Main --player 'Isak ”Bush Walker” Jacobsson'
+python course_analysis.py --csv-dir score_cards --course Vipan --layout Main --player 'Isak ”Bush Walker” Jacobsson'
 ```
 
-For more help on how to use the `average_plot.py` script run the help command:
+For more help on how to use the `course_analysis.py` script run the help
+command:
 
 ```
-python average_plot.py -h
+python course_analysis.py -h
 ```
