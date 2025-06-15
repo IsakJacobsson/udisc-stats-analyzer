@@ -5,7 +5,9 @@ from datetime import datetime
 
 import seaborn as sns
 import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 import pandas as pd
+import numpy as np
 
 class PlayerRound:
     def __init__(self, player_name, course_name, layout_name, start_date, end_date,
@@ -83,15 +85,23 @@ def graph_average(rounds, course_name, layout_name, player_name='all'):
     # Create dataframe from player scores
     df = pd.DataFrame(lines)
 
-    # Plot average and standard deviation using seaborn lineplot
-    sns.lineplot(data=df, x="Hole", y="Score", ci="sd", estimator="mean", label=f"Average: {player_name}")
+    # Create DataFrame for par values
+    par_df = pd.DataFrame({
+        "Hole": list(range(len(par_line))),
+        "Score": par_line,
+        "Player": ["Par"] * len(par_line)
+    })
 
-    # Overlay Par line
-    plt.plot(range(1, len(par_line) + 1), par_line, label="Par", linestyle="--", color="gray")
+    sns.set_theme(style="ticks", palette="pastel")
+
+    # Plot score
+    sns.boxplot(x="Hole", y="Score", data=df, order=list(range(1, len(par_line)+1)))
+    
+    # Plot par
+    sns.scatterplot(x="Hole", y="Score", data=par_df, color="gray", label="Par", zorder=5, s=100)
 
     plt.ylim(bottom=0)
-    plt.title(f"Average per hole CI for {course_name}, {layout_name}")
-    plt.legend()
+    plt.title(f"Boxplot for {course_name}, {layout_name}, player: {player_name}")
     plt.grid(True)
     plt.show()
 
