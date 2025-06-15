@@ -96,9 +96,12 @@ def graph_average(rounds, course_name, layout_name, player_name='all'):
 
     # Plot score
     sns.boxplot(x="Hole", y="Score", data=df, order=list(range(1, len(par_line)+1)))
+
+    # Plot all individual attempts
+    sns.stripplot(data=df, x="Hole", y="Score", size=4, color=".3")
     
     # Plot par
-    sns.scatterplot(x="Hole", y="Score", data=par_df, color="gray", label="Par", zorder=5, s=100)
+    sns.scatterplot(x="Hole", y="Score", data=par_df, label="Par", zorder=5, s=100, linewidth=1.5, facecolors='none', edgecolor="dimgray")
 
     plt.ylim(bottom=0)
     plt.title(f"Boxplot for {course_name}, {layout_name}, player: {player_name}")
