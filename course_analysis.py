@@ -85,10 +85,6 @@ def graph_average(df, par_df, course_name, layout_name, player_name='all'):
         (par_df["LayoutName"] == layout_name)
     ].copy()
 
-    # Shift to align scores in graph
-    # TODO: figure out why this shift is needed
-    subset_par["Hole"] = subset_par["Hole"] - 1
-
     if subset.empty:
         print(f"No data found for Course: '{course_name}', Layout: '{layout_name}'")
         return
@@ -96,7 +92,7 @@ def graph_average(df, par_df, course_name, layout_name, player_name='all'):
     sns.set_theme(style="ticks", palette="pastel")
 
     # Plot score
-    sns.boxplot(x="Hole", y="Score", data=subset, order=list(range(1, len(subset_par)+1)))
+    sns.boxplot(x="Hole", y="Score", data=subset, order=list(range(0, len(subset_par)+1)))
 
     # Plot all individual attempts
     sns.stripplot(data=subset, x="Hole", y="Score", size=4, color=".3")
