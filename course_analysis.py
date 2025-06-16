@@ -1,107 +1,108 @@
 import argparse
+import glob
 import os
-import csv
-from datetime import datetime
 
 import seaborn as sns
 import matplotlib.pyplot as plt
-from matplotlib.patches import Patch
 import pandas as pd
-import numpy as np
 
-class PlayerRound:
-    def __init__(self, player_name, course_name, layout_name, start_date, end_date,
-                 total, plus_minus, round_rating, number_of_holes, holes):
-        self.player_name = player_name
-        self.course_name = course_name
-        self.layout_name = layout_name
-        self.start_date = start_date
-        self.end_date = end_date
-        self.total = total
-        self.plus_minus = plus_minus
-        self.round_rating = round_rating
-        self.number_of_holes = number_of_holes
-        self.holes = holes  # Score per hole, List: [hole1, hole2, hole3]
-    
-    def __repr__(self):
-        return f"<PlayerRound {self.player_name}, Total: {self.total}>"
+def generate_dataframe(csv_dir):
+    # Load all CSV files from a directory
+    csv_files = glob.glob(os.path.join(csv_dir, "*.csv"))
 
-def load_player_rounds_from_csv(file_path):
-    rounds = []
-    with open(file_path, newline='', encoding='utf-8') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            player_name = row['PlayerName']
-            course_name = row['CourseName']
-            layout_name = row['LayoutName']
-            start_date = datetime.strptime(row['StartDate'], '%Y-%m-%d %H%M')
-            end_date = datetime.strptime(row['EndDate'], '%Y-%m-%d %H%M')
-            total = int(row['Total']) if row['Total'] else None
-            plus_minus = int(row['+/-']) if row['+/-'] else None
-            round_rating = float(row['RoundRating']) if row['RoundRating'] else None
+    dfs = []
+    par_dfs = []
 
-            number_of_holes = len(row) - 8 # There are 8 feilds before holes
-            holes = [int(row[f'Hole{i}']) if int(row[f'Hole{i}']) != 0 else None for i in range(1, number_of_holes+1)]
+    for file in csv_files:
+        df = pd.read_csv(file)
 
-            round_instance = PlayerRound(
-                player_name, course_name, layout_name, start_date, end_date,
-                total, plus_minus, round_rating, number_of_holes, holes
+        # Normalize smart quotes in all string columns (e.g., PlayerName)
+        for col in df.select_dtypes(include=['object']).columns:
+            df[col] = df[col].str.replace('[“”]', '"', regex=True)
+
+        # Get par row separately
+        par_row = df[df["PlayerName"] == "Par"]
+
+        if not par_row.empty:
+            # Melt par row
+            hole_cols = [col for col in df.columns if col.startswith("Hole")]
+            par_long = par_row.melt(
+                id_vars=["CourseName", "LayoutName"],
+                value_vars=hole_cols,
+                var_name="Hole",
+                value_name="Score"
             )
-            rounds.append(round_instance)
-    return rounds
+            par_long["Hole"] = par_long["Hole"].str.extract(r"(\d+)").astype(int)
+            par_long["Score"] = pd.to_numeric(par_long["Score"], errors="coerce")
 
-def load_all_csvs_from_folder(folder_path):
-    rounds = []
-    for filename in os.listdir(folder_path):
-        if not filename.lower().endswith(".csv"):
-            continue
-        file_path = os.path.join(folder_path, filename)
-        rounds.extend(load_player_rounds_from_csv(file_path))
-    return rounds
+            par_dfs.append(par_long)
 
-def graph_average(rounds, course_name, layout_name, player_name='all'):
-    par_line = []
-    lines = []
-    for round in rounds:
-        if round.course_name != course_name or round.layout_name != layout_name:
-            continue
-        if round.player_name == 'Par':
-            par_line = round.holes
-            continue
-        if player_name != 'all' and round.player_name != player_name:
-            continue
-        for i, score in enumerate(round.holes):
-            if score is not None:
-                lines.append({
-                    "Hole": i + 1,
-                    "Score": score,
-                    "Player": round.player_name
-                })
+        # Skip "Par" row
+        df = df[df["PlayerName"] != "Par"]
+        
+        # Only include hole columns
+        hole_cols = [col for col in df.columns if col.startswith("Hole")]
 
-    if not par_line:
-        print("Par line not found")
+        # Melt hole columns: 'Hole' and 'Strokes'
+        df_long = df.melt(
+            id_vars=["PlayerName", "CourseName", "LayoutName", "StartDate", "EndDate"],
+            value_vars=hole_cols,
+            var_name="Hole",
+            value_name="Score"
+        )
+
+        # Extract hole number from "Hole1", "Hole2", ..
+        df_long["Hole"] = df_long["Hole"].str.extract("(\d+)").astype(int)
+
+        # Convert score to numeric, just in case
+        df_long["Score"] = pd.to_numeric(df_long["Score"], errors="coerce")
+
+        # Filter out 0 or NaN scores (unfinished holes)
+        df_long = df_long[df_long["Score"] > 0]
+        
+        dfs.append(df_long)
+
+    # Combine all df_long DataFrames
+    df = pd.concat(dfs, ignore_index=True)
+    par_df = pd.concat(par_dfs, ignore_index=True).drop_duplicates(
+        subset=["CourseName", "LayoutName", "Hole"]
+    )
+
+    return df, par_df
+
+def graph_average(df, par_df, course_name, layout_name, player_name='all'):
+    # Filter the DataFrame
+    subset = df[
+        (df["CourseName"] == course_name) &
+        (df["LayoutName"] == layout_name)
+    ].copy()
+
+    if player_name != 'all':
+        subset = subset[(subset["PlayerName"] == player_name)]
+
+    subset_par = par_df[
+        (par_df["CourseName"] == course_name) &
+        (par_df["LayoutName"] == layout_name)
+    ].copy()
+
+    # Shift to align scores in graph
+    # TODO: figure out why this shift is needed
+    subset_par["Hole"] = subset_par["Hole"] - 1
+
+    if subset.empty:
+        print(f"No data found for Course: '{course_name}', Layout: '{layout_name}'")
         return
-
-    # Create dataframe from player scores
-    df = pd.DataFrame(lines)
-
-    # Create DataFrame for par values
-    par_df = pd.DataFrame({
-        "Hole": list(range(len(par_line))),
-        "Score": par_line,
-        "Player": ["Par"] * len(par_line)
-    })
 
     sns.set_theme(style="ticks", palette="pastel")
 
     # Plot score
-    sns.boxplot(x="Hole", y="Score", data=df, order=list(range(1, len(par_line)+1)))
+    sns.boxplot(x="Hole", y="Score", data=subset, order=list(range(1, len(subset_par)+1)))
 
     # Plot all individual attempts
-    sns.stripplot(data=df, x="Hole", y="Score", size=4, color=".3")
+    sns.stripplot(data=subset, x="Hole", y="Score", size=4, color=".3")
     
     # Plot par
-    sns.scatterplot(x="Hole", y="Score", data=par_df, label="Par", zorder=5, s=100, linewidth=2.5, facecolors='none', edgecolor="green", alpha=0.7)
+    sns.scatterplot(x="Hole", y="Score", data=subset_par, label="Par", zorder=5, s=100, linewidth=2.5, facecolors='none', edgecolor="green", alpha=0.7)
 
     plt.ylim(bottom=0)
     plt.title(f"Boxplot for {course_name}, {layout_name}, player: {player_name}")
@@ -109,8 +110,8 @@ def graph_average(rounds, course_name, layout_name, player_name='all'):
     plt.show()
 
 def main(args):
-    rounds = load_all_csvs_from_folder(args.csv_dir)
-    graph_average(rounds, args.course, args.layout, args.player)
+    df, par_df = generate_dataframe(args.csv_dir)
+    graph_average(df, par_df, args.course, args.layout, args.player)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
