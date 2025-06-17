@@ -40,7 +40,8 @@ Plot the course analysis for a specific course by running the
 `course_analysis.py` script.
 
 Here is an example use of `course_analysis.py` to plot the averages per hole for
-course "Vipan", layout "Main" for all players:
+course "Vipan" and layout "Main" for all players. It is also important to
+specify the directory containing your UDisc CSV files:
 
 ```
 python course_analysis.py --csv-dir score_cards --course Vipan --layout Main
