@@ -50,10 +50,11 @@ Here is an example of how that graph can look:
 
 ![course-analysis-demo](docs/course-analysis-demo.png)
 
-It is also possible to specify a player:
+It is also possible to specify one or more players by using the `-p` or
+`--player` option:
 
 ```
-python course_analysis.py --csv-dir score_cards --course Vipan --layout Main --player 'Isak ”Bush Walker” Jacobsson'
+python course_analysis.py -d score_cards -c Vipan --layout Main -p 'Isak ”Bush Walker” Jacobsson'
 ```
 
 For more help on how to use the `course_analysis.py` script run the help

@@ -70,15 +70,15 @@ def generate_dataframe(csv_dir):
 
     return df, par_df
 
-def graph_average(df, par_df, course_name, layout_name, player_name='all'):
+def graph_average(df, par_df, course_name, layout_name, players):
     # Filter the DataFrame
     subset = df[
         (df["CourseName"] == course_name) &
         (df["LayoutName"] == layout_name)
     ].copy()
 
-    if player_name != 'all':
-        subset = subset[(subset["PlayerName"] == player_name)]
+    if players[0] != 'all':
+        subset = subset[subset["PlayerName"].isin(players)]
 
     subset_par = par_df[
         (par_df["CourseName"] == course_name) &
@@ -101,13 +101,13 @@ def graph_average(df, par_df, course_name, layout_name, player_name='all'):
     sns.scatterplot(x="Hole", y="Score", data=subset_par, label="Par", zorder=5, s=100, linewidth=2.5, facecolors='none', edgecolor="green", alpha=0.7)
 
     plt.ylim(bottom=0)
-    plt.title(f"Boxplot for {course_name}, {layout_name}, player: {player_name}")
+    plt.title(f"Boxplot for {course_name}, {layout_name}, player(s): {players}")
     plt.grid(True)
     plt.show()
 
-def main(args):
+def main(args, players):
     df, par_df = generate_dataframe(args.csv_dir)
-    graph_average(df, par_df, args.course, args.layout, args.player)
+    graph_average(df, par_df, args.course, args.layout, players)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -132,12 +132,12 @@ if __name__ == "__main__":
         help="Layout name to filter by"
     )
     parser.add_argument(
-        "-u", "--player",
-        type=str,
-        required=False,
-        default="all",
-        help="Player name to filter by (default: all)"
+        "-p", "--player",
+        action="append",
+        default=None,
+        help="Player name(s) to filter by (can be used multiple times, e.g., -u Alice -u Bob). Will default to 'all'"
     )
 
     args = parser.parse_args()
-    main(args)
+    players = args.player if args.player is not None else ["all"]
+    main(args, players)
