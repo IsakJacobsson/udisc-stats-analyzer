@@ -114,7 +114,14 @@ def main(args, players):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="UDisc CSV Stats Analyzer — Plot average per hole for course and player"
+        description=("UDisc CSV Stats Analyzer — Plot course analysis\n\n"
+        "Example usage:\n"
+        "    python script.py -d score_cards -c Vipan -l Main\n"
+        "    python script.py -d score_cards -c Vipan -l Main -p 'Isak \"Bush Walker\" Jacobsson'\n"
+        "    python script.py -d score_cards -c Vipan -l Main -p 'Isak \"Bush Walker\" Jacobsson' -p Johanna\n"
+        "    python script.py -d score_cards -c Vipan -l Main -o output_file.png\n"
+        ),
+        formatter_class=argparse.RawTextHelpFormatter
     )
     parser.add_argument(
         "-d", "--csv-dir",
