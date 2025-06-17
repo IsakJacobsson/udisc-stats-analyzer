@@ -70,7 +70,7 @@ def generate_dataframe(csv_dir):
 
     return df, par_df
 
-def graph_average(df, par_df, course_name, layout_name, players):
+def graph_average(df, par_df, course_name, layout_name, players, output_path):
     # Filter the DataFrame
     subset = df[
         (df["CourseName"] == course_name) &
@@ -103,11 +103,14 @@ def graph_average(df, par_df, course_name, layout_name, players):
     plt.ylim(bottom=0)
     plt.title(f"Boxplot for {course_name}, {layout_name}, player(s): {players}")
     plt.grid(True)
+
+    if output_path:
+        plt.savefig(output_path, dpi=100)
     plt.show()
 
 def main(args, players):
     df, par_df = generate_dataframe(args.csv_dir)
-    graph_average(df, par_df, args.course, args.layout, players)
+    graph_average(df, par_df, args.course, args.layout, players, args.output)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -136,6 +139,12 @@ if __name__ == "__main__":
         action="append",
         default=None,
         help="Player name(s) to filter by (can be used multiple times, e.g., -u Alice -u Bob). Will default to 'all'"
+    )
+    parser.add_argument(
+        "-o", "--output",
+        type=str,
+        default=None,
+        help="Path to save the plot image (e.g., 'plot.png'). If not provided, the plot is only shown."
     )
 
     args = parser.parse_args()
