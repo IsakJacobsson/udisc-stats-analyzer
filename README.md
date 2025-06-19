@@ -58,8 +58,8 @@ It is also possible to specify one or more players by using the `-p` or
 python course_analysis.py -d score_cards -c Vipan --layout Main -p 'Isak ”Bush Walker” Jacobsson'
 ```
 
-For more help on how to use the `course_analysis.py` script run the help
-command:
+For more options and help for how to use the `course_analysis.py` script
+run the help command:
 
 ```
 python course_analysis.py -h
