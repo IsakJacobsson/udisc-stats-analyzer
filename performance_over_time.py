@@ -89,10 +89,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=("UDisc CSV Stats Analyzer — Plot course analysis\n\n"
         "Example usage:\n"
-        "    python script.py -d score_cards -c Vipan -l Main\n"
-        "    python script.py -d score_cards -c Vipan -l Main -p 'Isak \"Bush Walker\" Jacobsson'\n"
-        "    python script.py -d score_cards -c Vipan -l Main -p 'Isak \"Bush Walker\" Jacobsson' -p Johanna\n"
-        "    python script.py -d score_cards -c Vipan -l Main -o output_file.png\n"
+        "    python performance_over_time.py -d score_cards -c Vipan -l Main\n"
+        "    python performance_over_time.py -d score_cards -c Vipan -l Main -s Hole1 \n"
+        "    python performance_over_time.py -d score_cards -c Vipan -l Main -p 'Isak \"Bush Walker\" Jacobsson'\n"
+        "    python performance_over_time.py -d score_cards -c Vipan -l Main -p 'Isak \"Bush Walker\" Jacobsson' -p Johanna\n"
+        "    python performance_over_time.py -d score_cards -c Vipan -l Main -o output_file.png\n"
         ),
         formatter_class=argparse.RawTextHelpFormatter
     )
