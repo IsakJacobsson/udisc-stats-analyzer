@@ -64,3 +64,36 @@ command:
 ```
 python course_analysis.py -h
 ```
+
+### Performance Over Time
+
+Plot performace over time with the `performance_over_time.py` script.
+
+It is possible to see stats for total round score or a specific hole. By default
+the script will plot for the total round score.
+
+Provide the directory containing the UDisc CSV files, course, layout, and
+optionally the player(s) to plot for. By default all players with at least one
+record of the selecet stat will be plotted. Here is an example:
+
+```
+python performance_over_time.py --csv-dir score_cards --course Vipan --layout Main
+```
+
+Which generates a plot, such as:
+
+![performance-over-time-demo](docs/performance_over_time.png)
+
+To specify a specific hole, use the `-s` or `--stat` option followed by e.g.
+`Hole1`.
+
+```
+python performance_over_time.py -d score_cards -c Vipan --layout Main -s Hole1
+```
+
+For more options and help for how to use the `performance_over_time.py` script
+run the help command:
+
+```
+python performance_over_time.py -h
+```
