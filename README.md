@@ -59,7 +59,7 @@ Here is an example use for course "Vipan" and layout "Main" for all players.
 Remember to always specify the directory containing your UDisc CSV files:
 
 ```
-python course_analysis.py --csv-dir score_cards --course Vipan --layout Main
+python course_analysis.py --csv-dir score_cards --course Vipan --layout Main --plot-par
 ```
 
 Which generates a plot, such as:
@@ -94,7 +94,7 @@ record of the selecet stat will be plotted. When not specifiying a stat, the
 script will generate a plot for total round score. Here is an example:
 
 ```
-python performance_over_time.py --csv-dir score_cards --course Vipan --layout Main
+python performance_over_time.py --csv-dir score_cards --course Vipan --layout Main --plot-par
 ```
 
 Which generates a plot, such as:

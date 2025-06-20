@@ -11,6 +11,7 @@ def generate_dataframe(csv_dir):
     csv_files = glob.glob(os.path.join(csv_dir, "*.csv"))
 
     dfs = []
+    par_dfs = []
 
     for file in csv_files:
         df = pd.read_csv(file)
@@ -18,6 +19,21 @@ def generate_dataframe(csv_dir):
         # Normalize smart quotes in all string columns (e.g., PlayerName)
         for col in df.select_dtypes(include=['object']).columns:
             df[col] = df[col].str.replace('[“”]', '"', regex=True)
+
+        # Get par row separately
+        par_df = df[df["PlayerName"] == "Par"]
+
+        if not par_df.empty:
+            # Melt par row
+            par_df["Total"] = pd.to_numeric(par_df["Total"], errors="coerce")
+
+            nbr_holes = len([col for col in par_df.columns if col.startswith("Hole")])
+            for hole in range(1, nbr_holes+1):
+                par_df[f"Hole{hole}"] = pd.to_numeric(par_df[f"Hole{hole}"], errors="coerce")
+            
+            par_df["StartDate"] = pd.to_datetime(par_df["StartDate"])
+
+            par_dfs.append(par_df)
 
         
         df_fixed = df[df["PlayerName"] != "Par"]
@@ -43,10 +59,11 @@ def generate_dataframe(csv_dir):
 
     # Combine all df_long DataFrames
     df = pd.concat(dfs, ignore_index=True)
+    par_df = pd.concat(par_dfs, ignore_index=True)
 
-    return df
+    return df, par_df
 
-def graph_performance(df, course_name, layout_name, players, stat, output_path):
+def graph_performance(df, par_df, course_name, layout_name, players, stat, output_path, plot_par):
     # Filter the DataFrame
     subset = df[
         (df["CourseName"] == course_name) &
@@ -61,7 +78,9 @@ def graph_performance(df, course_name, layout_name, players, stat, output_path):
 
     sns.set_theme(style="ticks", palette="pastel")
 
-    if players[0] == "all":
+    if players[0] != "all":
+        subset = subset[subset['PlayerName'].isin(players)]
+    else:
         players = list(subset["PlayerName"].unique())
 
     for name in players:
@@ -74,6 +93,16 @@ def graph_performance(df, course_name, layout_name, players, stat, output_path):
         # Plot stat for player
         sns.lineplot(data=sub_subset, x="StartDate", y=stat, label=name, marker='o', alpha=0.8)
     
+    if plot_par:
+        par_subset = par_df[
+            (par_df["CourseName"] == course_name) &
+            (par_df["LayoutName"] == layout_name)
+        ].copy()
+
+        par_subset = par_subset[par_subset['StartDate'].isin(subset['StartDate'])]
+        
+        sns.lineplot(data=par_subset, x="StartDate", y=stat, label="Par", linewidth=2.5, alpha=0.8, color="green", linestyle="--")
+    
     plt.title(f"Performance over time for {stat} on {course_name}, {layout_name}")
     plt.grid(True)
 
@@ -82,8 +111,8 @@ def graph_performance(df, course_name, layout_name, players, stat, output_path):
     plt.show()
 
 def main(args, players):
-    df = generate_dataframe(args.csv_dir)
-    graph_performance(df, args.course, args.layout, players, args.stat, args.output)
+    df, par_df = generate_dataframe(args.csv_dir)
+    graph_performance(df, par_df, args.course, args.layout, players, args.stat, args.output, args.plot_par)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -94,6 +123,7 @@ if __name__ == "__main__":
         "    python performance_over_time.py -d score_cards -c Vipan -l Main -p 'Isak \"Bush Walker\" Jacobsson'\n"
         "    python performance_over_time.py -d score_cards -c Vipan -l Main -p 'Isak \"Bush Walker\" Jacobsson' -p Johanna\n"
         "    python performance_over_time.py -d score_cards -c Vipan -l Main -o output_file.png\n"
+        "    python performance_over_time.py -d score_cards -c Vipan -l Main -r\n"
         ),
         formatter_class=argparse.RawTextHelpFormatter
     )
@@ -132,6 +162,11 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="Path to save the plot image (e.g., 'plot.png'). If not provided, the plot is only shown."
+    )
+    parser.add_argument(
+        "-r", "--plot-par",
+        action="store_true",
+        help="Include par line in plot"
     )
 
     args = parser.parse_args()

@@ -70,7 +70,7 @@ def generate_dataframe(csv_dir):
 
     return df, par_df
 
-def graph_average(df, par_df, course_name, layout_name, players, output_path):
+def graph_average(df, par_df, course_name, layout_name, players, output_path, plot_par):
     # Filter the DataFrame
     subset = df[
         (df["CourseName"] == course_name) &
@@ -98,7 +98,8 @@ def graph_average(df, par_df, course_name, layout_name, players, output_path):
     sns.stripplot(data=subset, x="Hole", y="Score", size=4, color=".3")
     
     # Plot par
-    sns.scatterplot(x="Hole", y="Score", data=subset_par, label="Par", zorder=5, s=100, linewidth=2.5, facecolors='none', edgecolor="green", alpha=0.7)
+    if plot_par:
+        sns.scatterplot(x="Hole", y="Score", data=subset_par, label="Par", zorder=5, s=100, linewidth=2.5, facecolors='none', edgecolor="green", alpha=0.7)
 
     plt.ylim(bottom=0)
     plt.title(f"Boxplot for {course_name}, {layout_name}, player(s): {players}")
@@ -110,7 +111,7 @@ def graph_average(df, par_df, course_name, layout_name, players, output_path):
 
 def main(args, players):
     df, par_df = generate_dataframe(args.csv_dir)
-    graph_average(df, par_df, args.course, args.layout, players, args.output)
+    graph_average(df, par_df, args.course, args.layout, players, args.output, args.plot_par)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -120,6 +121,7 @@ if __name__ == "__main__":
         "    python course_analysis.py -d score_cards -c Vipan -l Main -p 'Isak \"Bush Walker\" Jacobsson'\n"
         "    python course_analysis.py -d score_cards -c Vipan -l Main -p 'Isak \"Bush Walker\" Jacobsson' -p Johanna\n"
         "    python course_analysis.py -d score_cards -c Vipan -l Main -o output_file.png\n"
+        "    python course_analysis.py -d score_cards -c Vipan -l Main -r\n"
         ),
         formatter_class=argparse.RawTextHelpFormatter
     )
@@ -152,6 +154,11 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="Path to save the plot image (e.g., 'plot.png'). If not provided, the plot is only shown."
+    )
+    parser.add_argument(
+        "-r", "--plot-par",
+        action="store_true",
+        help="Include par line in plot"
     )
 
     args = parser.parse_args()
