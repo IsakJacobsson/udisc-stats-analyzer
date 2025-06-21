@@ -73,8 +73,8 @@ using the `-p` or `--player` option:
 python course_analysis.py -d score_cards -c Vipan --layout Main -p 'Isak ”Bush Walker” Jacobsson' -p Johanna
 ```
 
-For more options and help for how to use the `course_analysis.py` script
-run the help command:
+For more options and help for how to use the `course_analysis.py` script run the
+help command:
 
 ```
 python course_analysis.py -h
