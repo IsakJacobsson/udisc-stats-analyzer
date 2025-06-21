@@ -114,3 +114,36 @@ run the help command:
 ```
 python performance_over_time.py -h
 ```
+
+### Distribution
+
+Plot the score distribution for by running the `distribution.py` script.
+
+This script will generate a pie plot for the score distribution, i.e., what
+procentage of your holes are birdies, pars, bogeyes and so on. By default the
+script will plot the combined distribution for all players and all courses, but
+it is possible to specify those to get a filtered distribution.
+
+An example use of the script is seen below. Remember to always specify the
+directory containing your UDisc CSV files:
+
+```
+python distribution.py --csv-dir score_cards
+```
+
+Which generates a plot, such as:
+
+![distribution-demo](docs/distribution-demo.png)
+
+You can also provide specific course, layout and player(s) to plot for, e.g:
+
+```
+python distribution.py --csv-dir score_cards -c Vipan -l Main -p 'Isak "Bush Walker" Jacobsson'
+```
+
+For more options and help for how to use the `distribution.py` script run the
+help command:
+
+```
+python distribution.py -h
+```
