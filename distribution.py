@@ -62,6 +62,21 @@ def filter_df(df, course_name, layout_name):
 
     return df
 
+def filter_df(df, course_name, layout_name, players=None, stat=None):
+    if course_name:
+        df = df[df["CourseName"] == course_name]
+    
+    if layout_name:
+        df = df[df["LayoutName"] == layout_name]
+    
+    if players and players[0] != "all":
+        return df[df['PlayerName'].isin(players)]
+    
+    if stat and stat in df.columns:
+        df = df[df[stat] != 0]
+    
+    return df
+
 def distribution_dataframe(df, par_df):
     distribution_df = pd.DataFrame(columns=[
         "PlayerName",
@@ -170,11 +185,9 @@ def piechart(df, players, course_name, layout_name, output_path):
 def main(args, players):
     df, par_df = generate_dataframes(args.csv_dir)
 
-    df = filter_df(df, args.course, args.layout)
-    if players[0] != "all":
-        df = filter_df_by_players(df, players)
-
+    df = filter_df(df, args.course, args.layout, players)
     df = distribution_dataframe(df, par_df)
+
     piechart(df, players, args.course, args.layout, args.output)
 
 if __name__ == "__main__":

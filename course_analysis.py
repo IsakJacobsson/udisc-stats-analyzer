@@ -55,17 +55,19 @@ def generate_dataframe_per_hole(csv_dir):
 
     return result_df, result_par_df
 
-def filter_df_by_players(df, players):
-    return df[df['PlayerName'].isin(players)]
-
-def filter_df(df, course_name, layout_name):
-    if course_name and layout_name:
-        # Filter the DataFrame
-        df = df[
-            (df["CourseName"] == course_name) &
-            (df["LayoutName"] == layout_name)
-        ]
-
+def filter_df(df, course_name, layout_name, players=None, stat=None):
+    if course_name:
+        df = df[df["CourseName"] == course_name]
+    
+    if layout_name:
+        df = df[df["LayoutName"] == layout_name]
+    
+    if players and players[0] != "all":
+        return df[df['PlayerName'].isin(players)]
+    
+    if stat and stat in df.columns:
+        df = df[df[stat] != 0]
+    
     return df
 
 def graph_average(df, par_df, course_name, layout_name, players, output_path, plot_par):
@@ -92,10 +94,7 @@ def graph_average(df, par_df, course_name, layout_name, players, output_path, pl
 def main(args, players):
     df, par_df = generate_dataframe_per_hole(args.csv_dir)
 
-    df = filter_df(df, args.course, args.layout)
-    if players[0] != "all":
-        df = filter_df_by_players(df, players)
-
+    df = filter_df(df, args.course, args.layout, players=players)
     par_df = filter_df(par_df, args.course, args.layout)
 
     graph_average(df, par_df, args.course, args.layout, players, args.output, args.plot_par)

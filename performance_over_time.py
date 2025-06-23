@@ -49,22 +49,26 @@ def generate_dataframes(csv_dir):
 
     return result_df, result_par_df
 
-def filter_df_by_players(df, players):
-    return df[df['PlayerName'].isin(players)]
-
-def filter_df(df, course_name, layout_name, stat):
-    # Filter the DataFrame
-    df = df[
-        (df["CourseName"] == course_name) &
-        (df["LayoutName"] == layout_name)
-    ]
-
-    df = df[df[stat] != 0]
-
+def filter_df(df, course_name, layout_name, players=None, stat=None):
+    if course_name:
+        df = df[df["CourseName"] == course_name]
+    
+    if layout_name:
+        df = df[df["LayoutName"] == layout_name]
+    
+    if players and players[0] != "all":
+        return df[df['PlayerName'].isin(players)]
+    
+    if stat and stat in df.columns:
+        df = df[df[stat] != 0]
+    
     return df
 
 def graph_performance(df, par_df, course_name, layout_name, players, stat, output_path, plot_par):
     sns.set_theme(style="ticks", palette="pastel")
+
+    if players[0] == "all":
+        players = list(df["PlayerName"].unique())
 
     for player in players:
         player_df = df[df["PlayerName"] == player]
@@ -84,12 +88,9 @@ def graph_performance(df, par_df, course_name, layout_name, players, stat, outpu
 def main(args, players):
     df, par_df = generate_dataframes(args.csv_dir)
     
-    df = filter_df(df, args.course, args.layout, args.stat)
-    if players[0] == "all":
-        players = list(df["PlayerName"].unique())
-    df = filter_df_by_players(df, players)
+    df = filter_df(df, args.course, args.layout, players=players, stat=args.stat)
 
-    par_df = filter_df(par_df, args.course, args.layout, args.stat)
+    par_df = filter_df(par_df, args.course, args.layout, stat=args.stat)
 
     graph_performance(df, par_df, args.course, args.layout, players, args.stat, args.output, args.plot_par)
 
