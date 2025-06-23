@@ -6,12 +6,12 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 
-def generate_dataframe(csv_dir):
+def generate_dataframe_per_hole(csv_dir):
     # Load all CSV files from a directory
     csv_files = glob.glob(os.path.join(csv_dir, "*.csv"))
 
-    dfs = []
-    par_dfs = []
+    result_df = pd.DataFrame()
+    result_par_df = pd.DataFrame()
 
     for file in csv_files:
         df = pd.read_csv(file)
@@ -19,26 +19,10 @@ def generate_dataframe(csv_dir):
         # Normalize smart quotes in all string columns (e.g., PlayerName)
         for col in df.select_dtypes(include=['object']).columns:
             df[col] = df[col].str.replace('[“”]', '"', regex=True)
-
-        # Get par row separately
-        par_row = df[df["PlayerName"] == "Par"]
-
-        if not par_row.empty:
-            # Melt par row
-            hole_cols = [col for col in df.columns if col.startswith("Hole")]
-            par_long = par_row.melt(
-                id_vars=["CourseName", "LayoutName"],
-                value_vars=hole_cols,
-                var_name="Hole",
-                value_name="Score"
-            )
-            par_long["Hole"] = par_long["Hole"].str.extract(r"(\d+)").astype(int)
-            par_long["Score"] = pd.to_numeric(par_long["Score"], errors="coerce")
-
-            par_dfs.append(par_long)
-
-        # Skip "Par" row
-        df = df[df["PlayerName"] != "Par"]
+        
+        # Set type for StartDate and EndDate
+        df["StartDate"] = pd.to_datetime(df["StartDate"])
+        df["EndDate"] = pd.to_datetime(df["EndDate"])
         
         # Only include hole columns
         hole_cols = [col for col in df.columns if col.startswith("Hole")]
@@ -54,52 +38,48 @@ def generate_dataframe(csv_dir):
         # Extract hole number from "Hole1", "Hole2", ..
         df_long["Hole"] = df_long["Hole"].str.extract("(\d+)").astype(int)
 
-        # Convert score to numeric, just in case
-        df_long["Score"] = pd.to_numeric(df_long["Score"], errors="coerce")
-
         # Filter out 0 or NaN scores (unfinished holes)
         df_long = df_long[df_long["Score"] > 0]
         
-        dfs.append(df_long)
+        # Concat to result_par_df
+        par_df = df_long[df_long["PlayerName"] == "Par"].copy()
+        par_df = par_df.drop(columns=["StartDate", "EndDate"])
+        result_par_df = pd.concat([result_par_df, par_df], ignore_index=True)
+        
+        # Conat to result_df
+        df_long = df_long[df_long["PlayerName"] != "Par"]
+        result_df = pd.concat([result_df, df_long], ignore_index=True)
 
-    # Combine all df_long DataFrames
-    df = pd.concat(dfs, ignore_index=True)
-    par_df = pd.concat(par_dfs, ignore_index=True).drop_duplicates(
-        subset=["CourseName", "LayoutName", "Hole"]
-    )
+    # No need for multiple rows of the same course and layout
+    result_par_df = result_par_df.drop_duplicates()
 
-    return df, par_df
+    return result_df, result_par_df
+
+def filter_df_by_players(df, players):
+    return df[df['PlayerName'].isin(players)]
+
+def filter_df(df, course_name, layout_name):
+    if course_name and layout_name:
+        # Filter the DataFrame
+        df = df[
+            (df["CourseName"] == course_name) &
+            (df["LayoutName"] == layout_name)
+        ]
+
+    return df
 
 def graph_average(df, par_df, course_name, layout_name, players, output_path, plot_par):
-    # Filter the DataFrame
-    subset = df[
-        (df["CourseName"] == course_name) &
-        (df["LayoutName"] == layout_name)
-    ].copy()
-
-    if players[0] != 'all':
-        subset = subset[subset["PlayerName"].isin(players)]
-
-    subset_par = par_df[
-        (par_df["CourseName"] == course_name) &
-        (par_df["LayoutName"] == layout_name)
-    ].copy()
-
-    if subset.empty:
-        print(f"No data found for Course: '{course_name}', Layout: '{layout_name}'")
-        return
-
     sns.set_theme(style="ticks", palette="pastel")
 
     # Plot score
-    sns.boxplot(x="Hole", y="Score", data=subset, order=list(range(0, len(subset_par)+1)))
+    sns.boxplot(x="Hole", y="Score", data=df, order=list(range(0, len(par_df)+1)))
 
     # Plot all individual attempts
-    sns.stripplot(data=subset, x="Hole", y="Score", size=4, color=".3")
+    sns.stripplot(data=df, x="Hole", y="Score", size=4, color=".3")
     
     # Plot par
     if plot_par:
-        sns.scatterplot(x="Hole", y="Score", data=subset_par, label="Par", zorder=5, s=100, linewidth=2.5, facecolors='none', edgecolor="green", alpha=0.7)
+        sns.scatterplot(x="Hole", y="Score", data=par_df, label="Par", zorder=5, s=100, linewidth=2.5, facecolors='none', edgecolor="green", alpha=0.7)
 
     plt.ylim(bottom=0)
     plt.title(f"Boxplot for {course_name}, {layout_name}, player(s): {players}")
@@ -110,7 +90,14 @@ def graph_average(df, par_df, course_name, layout_name, players, output_path, pl
     plt.show()
 
 def main(args, players):
-    df, par_df = generate_dataframe(args.csv_dir)
+    df, par_df = generate_dataframe_per_hole(args.csv_dir)
+
+    df = filter_df(df, args.course, args.layout)
+    if players[0] != "all":
+        df = filter_df_by_players(df, players)
+
+    par_df = filter_df(par_df, args.course, args.layout)
+
     graph_average(df, par_df, args.course, args.layout, players, args.output, args.plot_par)
 
 if __name__ == "__main__":
