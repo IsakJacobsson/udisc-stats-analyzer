@@ -6,7 +6,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 
-def generate_dataframe_per_course(csv_dir):
+def generate_dataframe_per_hole(csv_dir):
     # Load all CSV files from a directory
     csv_files = glob.glob(os.path.join(csv_dir, "*.csv"))
 
@@ -23,26 +23,32 @@ def generate_dataframe_per_course(csv_dir):
         # Set type for StartDate and EndDate
         df["StartDate"] = pd.to_datetime(df["StartDate"])
         df["EndDate"] = pd.to_datetime(df["EndDate"])
+        
+        # Only include hole columns
+        hole_cols = [col for col in df.columns if col.startswith("Hole")]
 
-        # Set Total to zero if the round wasn't completed
-        holes = [col for col in df.columns if col.startswith("Hole")]
-        for index, row in df.iterrows():
-            round_finished = True
-            for hole in holes:
-                if row[hole] == 0:
-                    round_finished = False
-                    break
-            if  not round_finished:
-                df.at[index, "Total"] = 0
-    
+        # Melt hole columns: 'Hole' and 'Strokes'
+        df_long = df.melt(
+            id_vars=["PlayerName", "CourseName", "LayoutName", "StartDate", "EndDate"],
+            value_vars=hole_cols,
+            var_name="Hole",
+            value_name="Score"
+        )
+
+        # Extract hole number from "Hole1", "Hole2", ..
+        df_long["Hole"] = df_long["Hole"].str.extract("(\d+)").astype(int)
+
+        # Filter out 0 or NaN scores (unfinished holes)
+        df_long = df_long[df_long["Score"] > 0]
+        
         # Concat to result_par_df
-        par_df = df[df["PlayerName"] == "Par"].copy()
+        par_df = df_long[df_long["PlayerName"] == "Par"].copy()
         par_df = par_df.drop(columns=["StartDate", "EndDate"])
         result_par_df = pd.concat([result_par_df, par_df], ignore_index=True)
         
         # Conat to result_df
-        df = df[df["PlayerName"] != "Par"]
-        result_df = pd.concat([result_df, df], ignore_index=True)
+        df_long = df_long[df_long["PlayerName"] != "Par"]
+        result_df = pd.concat([result_df, df_long], ignore_index=True)
 
     # No need for multiple rows of the same course and layout
     result_par_df = result_par_df.drop_duplicates()
@@ -77,101 +83,64 @@ def filter_df(df, course_name, layout_name, players=None, stat=None):
     
     return df
 
-def distribution_dataframe(df, par_df):
-    distribution_df = pd.DataFrame(columns=[
-        "PlayerName",
-        "CourseName",
-        "LayoutName",
-        "StartDate",
-        "EndDate",
-        "Worse than triple bogey",
-        "Triple Bogey",
-        "Double Bogey",
-        "Bogey",
-        "Par",
-        "Birdie",
-        "Eagle",
-        "Albatross",
-        "Condor",
-        "Hole-in-one"
-    ])
-
-    hole_cols = [col for col in df.columns if col.startswith("Hole")]
+def convert_to_score_distribution(df, par_df):
+    distribution_df = pd.DataFrame(columns=["ScoreType"])
 
     for _, row in df.iterrows():
-        scores = {
-            "Worse than triple bogey": 0,
-            "Triple Bogey": 0,
-            "Double Bogey": 0,
-            "Bogey": 0,
-            "Par": 0,
-            "Birdie": 0,
-            "Eagle": 0,
-            "Albatross": 0,
-            "Condor": 0,
-            "Hole-in-one": 0
-        }
-
-        par_row = par_df[(par_df["CourseName"] == row["CourseName"]) & (par_df["LayoutName"] == row["LayoutName"])]
-
-        for hole in hole_cols:
-            if row[hole] == 1:
-                scores["Hole-in-one"] += 1
-                continue
-            if row[hole] == 0:
-                continue
-            relative_score = row[hole] - par_row[hole].values[0]
-            match relative_score:
-                case -4:
-                    scores["Condor"] += 1
-                case -3:
-                    scores["Albatross"] += 1
-                case -2:
-                    scores["Eagle"] += 1
-                case -1:
-                    scores["Birdie"] += 1
-                case 0:
-                    scores["Par"] += 1
-                case 1:
-                    scores["Bogey"] += 1
-                case 2:
-                    scores["Double Bogey"] += 1
-                case 3:
-                    scores["Triple Bogey"] += 1
-                case x if x > 3:
-                    scores["Worse than triple bogey"] += 1
+        scoreType = ""
+        if row["Score"] == 1:
+            scoreType = "Hole-in-one"
+            continue
+        if row["Score"] == 0:
+            # Skip this value
+            continue
+        par_score = par_df[
+            (par_df["CourseName"] == row["CourseName"]) &
+            (par_df["LayoutName"] == row["LayoutName"]) &
+            (par_df["Hole"] == row["Hole"])
+        ]["Score"].values[0]
+        relative_score = row["Score"] - par_score
+        match relative_score:
+            case -4:
+                scoreType = "Condor"
+            case -3:
+                scoreType = "Albatross"
+            case -2:
+                scoreType = "Eagle"
+            case -1:
+                scoreType = "Birdie"
+            case 0:
+                scoreType = "Par"
+            case 1:
+                scoreType = "Bogey"
+            case 2:
+                scoreType = "Double Bogey"
+            case 3:
+                scoreType = "Triple Bogey"
+            case x if x > 3:
+                "Worse than triple bogey"
         
         distribution_df.loc[len(distribution_df)] = {
-            "PlayerName": row["PlayerName"],
-            **scores
+            "ScoreType": scoreType
         }
 
     return distribution_df
 
 def piechart(df, players, course_name, layout_name, output_path):
-    # Filter the DataFrame
-    if not course_name:
-        course_name = "All"
-    if  not layout_name:
-        layout_name = "All"
 
-    # Group by PlayerName and sum all other numeric columns
-    df = df.groupby("PlayerName", as_index=False).sum()
+    score_counts = df["ScoreType"].value_counts()
 
-    if df.empty:
-        print(f"No data found for players: {players}'")
-        return
+    # Define the desired order
+    custom_order = ["Worse than triple bogey", "Triple Bogey", "Double Bogey", "Bogey", "Par", "Birdie", "Eagle", "Albatros", "Condor", "Hole-in-one"]
 
-    sns.set_theme(style="ticks", palette="pastel")
+    # Reindex with custom order and drop missing ones
+    score_counts = score_counts.reindex(custom_order).dropna()
 
-    score_columns = df.columns.drop("PlayerName")
-    scores_sum = df[score_columns].sum()
-    scores_sum = scores_sum[scores_sum > 0]
+    sns.set_theme(palette="pastel")
 
-    plt.figure(figsize=(8, 8))
     plt.pie(
-        scores_sum,
-        labels=scores_sum.index,
+        score_counts,
+        labels=score_counts.index,
         autopct="%1.1f%%",
         startangle=90,
         textprops={'fontsize': 12}
@@ -183,10 +152,10 @@ def piechart(df, players, course_name, layout_name, output_path):
     plt.show()
 
 def main(args, players):
-    df, par_df = generate_dataframe_per_course(args.csv_dir)
+    df, par_df = generate_dataframe_per_hole(args.csv_dir)
 
     df = filter_df(df, args.course, args.layout, players)
-    df = distribution_dataframe(df, par_df)
+    df = convert_to_score_distribution(df, par_df)
 
     piechart(df, players, args.course, args.layout, args.output)
 
