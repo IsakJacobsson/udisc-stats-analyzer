@@ -9,8 +9,8 @@ This repository contains a Python script to plot different types of stats based
 on your UDisc golf games. Follow the [Setup](#setup) to instal the prerequisit
 Python packages and preparing your UDisc CSV files for analysis.
 
-After completing the setup, continue to the [Plots](#plots) section to learn
-about which plats are available, and how to use them.
+After completing the setup, continue to the [Analysis](#analysis) section to
+learn about the different analytics, and how to use them.
 
 ## Setup
 
@@ -41,10 +41,11 @@ Use the UDisc app to download the CSV files you want to analyze.
 
 Move the CSV files into a separate directory named e.g., `score_cards`.
 
-## Plots
+## Analysis
 
-The udisc_analysis.py script lets you generate different plots from your UDisc
-data. Use a subcommand to select the type of analysis you want to run:
+The udisc_analysis.py script lets you generate different kinds of analytics from
+your UDisc data. Use a subcommand to select the type of analysis you want to
+run:
 
 ### Course Analysis
 
@@ -58,7 +59,7 @@ Here is an example use for course "Vipan" and layout "Main" for all players.
 Remember to always specify the directory containing your UDisc CSV files:
 
 ```
-python course_analysis.py --csv-dir score_cards --course Vipan --layout Main --plot-par
+python udisc_analysis.py course-analysis --csv-dir score_cards --course Vipan --layout Main --plot-par
 ```
 
 Which generates a plot, such as:
@@ -69,14 +70,14 @@ To specify for what player(s) to include in the plot, add one or more players by
 using the `-p` or `--player` option:
 
 ```
-python course_analysis.py -d score_cards -c Vipan --layout Main -p 'Isak ”Bush Walker” Jacobsson' -p Johanna
+python udisc_analysis.py course-analysis -d score_cards -c Vipan --layout Main -p 'Isak ”Bush Walker” Jacobsson' -p Johanna
 ```
 
 For more options and help for how to use the `course-analysis` subcommand run
 the help command:
 
 ```
-python course_analysis.py -h
+python udisc_analysis.py course-analysis -h
 ```
 
 ### Performance Over Time
@@ -93,7 +94,7 @@ record of the selecet stat will be plotted. When not specifiying a stat, the
 subcommand will generate a plot for the total round score. Here is an example:
 
 ```
-python performance_over_time.py --csv-dir score_cards --course Vipan --layout Main --plot-par
+python udisc_analysis.py performance-over-time --csv-dir score_cards --course Vipan --layout Main --plot-par
 ```
 
 Which generates a plot, such as:
@@ -104,14 +105,14 @@ To specify a specific stat, use the `-s` or `--stat` option followed by e.g.
 `Hole1`.
 
 ```
-python performance_over_time.py -d score_cards -c Vipan --layout Main -s Hole1
+python udisc_analysis.py performance-over-time -d score_cards -c Vipan --layout Main -s Hole1
 ```
 
 For more options and help for how to use the `performance-over-time` subcommand
 run the help command:
 
 ```
-python performance_over_time.py -h
+python udisc_analysis.py performance-over-time -h
 ```
 
 ### Score Distribution
@@ -127,7 +128,7 @@ An example use of the subcommand is seen below. Remember to always specify the
 directory containing your UDisc CSV files:
 
 ```
-python distribution.py --csv-dir score_cards
+python udisc_analysis.py score-distribution --csv-dir score_cards
 ```
 
 Which generates a plot, such as:
@@ -137,12 +138,12 @@ Which generates a plot, such as:
 You can also provide specific course, layout and player(s) to plot for, e.g:
 
 ```
-python distribution.py --csv-dir score_cards -c Vipan -l Main -p 'Isak "Bush Walker" Jacobsson'
+python udisc_analysis.py score-distribution --csv-dir score_cards -c Vipan -l Main -p 'Isak "Bush Walker" Jacobsson'
 ```
 
-For more options and help for how to use the `distribution.py` subcommand run
+For more options and help for how to use the `score-distribution` subcommand run
 the help command:
 
 ```
-python distribution.py -h
+python udisc_analysis.py score-distribution -h
 ```
