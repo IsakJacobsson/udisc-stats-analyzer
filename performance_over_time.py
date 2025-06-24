@@ -6,7 +6,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 
-def generate_dataframe_per_course(csv_dir):
+def generate_dataframe_per_round(csv_dir):
     # Load all CSV files from a directory
     csv_files = glob.glob(os.path.join(csv_dir, "*.csv"))
 
@@ -86,7 +86,7 @@ def graph_performance(df, par_df, course_name, layout_name, players, stat, outpu
     plt.show()
 
 def main(args, players):
-    df, par_df = generate_dataframe_per_course(args.csv_dir)
+    df, par_df = generate_dataframe_per_round(args.csv_dir)
     
     df = filter_df(df, args.course, args.layout, players=players, stat=args.stat)
 
