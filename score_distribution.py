@@ -55,27 +55,14 @@ def generate_dataframe_per_hole(csv_dir):
 
     return result_df, result_par_df
 
-def filter_df_by_players(df, players):
-    return df[df['PlayerName'].isin(players)]
-
-def filter_df(df, course_name, layout_name):
-    if course_name and layout_name:
-        # Filter the DataFrame
-        df = df[
-            (df["CourseName"] == course_name) &
-            (df["LayoutName"] == layout_name)
-        ]
-
-    return df
-
 def filter_df(df, course_name, layout_name, players=None, stat=None):
-    if course_name:
+    if course_name != "All":
         df = df[df["CourseName"] == course_name]
     
-    if layout_name:
+    if layout_name != "All":
         df = df[df["LayoutName"] == layout_name]
     
-    if players and players[0] != "all":
+    if players and players[0] != "All":
         return df[df['PlayerName'].isin(players)]
     
     if stat and stat in df.columns:
@@ -181,11 +168,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "-c", "--course",
         type=str,
+        default="All",
         help="Course name to filter by"
     )
     parser.add_argument(
         "-l", "--layout",
         type=str,
+        default="All",
         help="Layout name to filter by"
     )
     parser.add_argument(
@@ -208,5 +197,5 @@ if __name__ == "__main__":
     if args.course and not args.layout:
         print("Error: c/--course requires --l/--layout to be specified.")
         exit()
-    players = args.player if args.player is not None else ["all"]
+    players = args.player if args.player is not None else ["All"]
     main(args, players)

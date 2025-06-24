@@ -56,13 +56,13 @@ def generate_dataframe_per_hole(csv_dir):
     return result_df, result_par_df
 
 def filter_df(df, course_name, layout_name, players=None, stat=None):
-    if course_name:
+    if course_name != "All":
         df = df[df["CourseName"] == course_name]
     
-    if layout_name:
+    if layout_name != "All":
         df = df[df["LayoutName"] == layout_name]
     
-    if players and players[0] != "all":
+    if players and players[0] != "All":
         return df[df['PlayerName'].isin(players)]
     
     if stat and stat in df.columns:
@@ -148,5 +148,5 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    players = args.player if args.player is not None else ["all"]
+    players = args.player if args.player is not None else ["All"]
     main(args, players)
