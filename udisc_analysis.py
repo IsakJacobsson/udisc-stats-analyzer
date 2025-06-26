@@ -69,12 +69,23 @@ def generate_dataframe(csv_dir, mode="hole"):
     return result_df, result_par_df
 
 def convert_to_score_distribution(df, par_df):
-    distribution_df = pd.DataFrame(columns=["ScoreType"])
+    distribution = []
+
+    score_type_map = {
+        -4: "Condor",
+        -3: "Albatross",
+        -2: "Eagle",
+        -1: "Birdie",
+        0: "Par",
+        1: "Bogey",
+        2: "Double Bogey",
+        3: "Triple Bogey"
+    }
 
     for _, row in df.iterrows():
-        scoreType = ""
+        score_type = ""
         if row["Score"] == 1:
-            scoreType = "Hole-in-one"
+            score_type = "Hole-in-one"
             continue
         if row["Score"] == 0:
             # Skip this value
@@ -85,31 +96,10 @@ def convert_to_score_distribution(df, par_df):
             (par_df["Hole"] == row["Hole"])
         ]["Score"].values[0]
         relative_score = row["Score"] - par_score
-        match relative_score:
-            case -4:
-                scoreType = "Condor"
-            case -3:
-                scoreType = "Albatross"
-            case -2:
-                scoreType = "Eagle"
-            case -1:
-                scoreType = "Birdie"
-            case 0:
-                scoreType = "Par"
-            case 1:
-                scoreType = "Bogey"
-            case 2:
-                scoreType = "Double Bogey"
-            case 3:
-                scoreType = "Triple Bogey"
-            case x if x > 3:
-                scoreType = "Worse than triple bogey"
-        
-        distribution_df.loc[len(distribution_df)] = {
-            "ScoreType": scoreType
-        }
+        score_type = score_type_map.get(relative_score, "Worse than triple bogey")
+        distribution.append({"ScoreType": score_type})
 
-    return distribution_df
+    return pd.DataFrame(distribution)
 
 def filter_df(df, course_name, layout_name, players=None, stat=None):
     if course_name != "All":
