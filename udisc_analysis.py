@@ -133,7 +133,7 @@ def convert_to_score_distribution(df, par_df):
             case 3:
                 scoreType = "Triple Bogey"
             case x if x > 3:
-                "Worse than triple bogey"
+                scoreType = "Worse than triple bogey"
         
         distribution_df.loc[len(distribution_df)] = {
             "ScoreType": scoreType
@@ -201,7 +201,7 @@ def plot_performance(df, par_df, course_name, layout_name, players, stat, output
         plt.savefig(output_path, dpi=100)
     plt.show()
 
-def plot_average(df, par_df, course_name, layout_name, players, output_path, plot_par):
+def plot_hole_distribution(df, par_df, course_name, layout_name, players, output_path, plot_par):
     sns.set_theme(style="ticks", palette="pastel")
 
     # Plot score
@@ -215,6 +215,8 @@ def plot_average(df, par_df, course_name, layout_name, players, output_path, plo
         sns.scatterplot(x="Hole", y="Score", data=par_df, label="Par", zorder=5, s=100, linewidth=2.5, facecolors='none', edgecolor="green", alpha=0.7)
 
     plt.ylim(bottom=0)
+    y_max = int(df["Score"].max()) + 1
+    plt.yticks(list(range(0, y_max + 1)))
     plt.title(f"Boxplot for {course_name}, {layout_name}, player(s): {players}")
     plt.grid(True)
 
@@ -239,13 +241,13 @@ def performance_over_time(args, players):
 
     plot_performance(df, par_df, args.course, args.layout, players, args.stat, args.output, args.plot_par)
 
-def course_analysis(args, players):
+def hole_distribution(args, players):
     df, par_df = generate_dataframe_per_hole(args.csv_dir)
 
     df = filter_df(df, args.course, args.layout, players=players)
     par_df = filter_df(par_df, args.course, args.layout)
 
-    plot_average(df, par_df, args.course, args.layout, players, args.output, args.plot_par)
+    plot_hole_distribution(df, par_df, args.course, args.layout, players, args.output, args.plot_par)
 
 def main():
     parser = argparse.ArgumentParser(description="UDisc CSV Stats Analyzer")
@@ -328,8 +330,8 @@ def main():
         help="Include par line in plot"
     )
 
-    # Course analysis subparser
-    parser_course = subparsers.add_parser("course-analysis", help="Analyze scores per course")
+    # Hole distribution subparser
+    parser_course = subparsers.add_parser("hole-distribution", help="Analyze scores per course")
     parser_course.add_argument(
         "-d", "--csv-dir",
         type=str,
@@ -375,8 +377,8 @@ def main():
         score_distribution(args, players)
     elif args.command == "performance-over-time":
         performance_over_time(args, players)
-    elif args.command == "course-analysis":
-        course_analysis(args, players)
+    elif args.command == "hole-distribution":
+        hole_distribution(args, players)
 
 if __name__ == "__main__":
     main()

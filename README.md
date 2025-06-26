@@ -47,37 +47,37 @@ The udisc_analysis.py script lets you generate different kinds of analytics from
 your UDisc data. Use a subcommand to select the type of analysis you want to
 run:
 
-### Course Analysis
+### Hole Distribution
 
-Plot the course analysis with the `course-analysis` subcommand.
+Plot the hole distribution with the `hole-distribution` subcommand.
 
 This subcommand will generate a boxplot with the distribution per hole for a
-specific course and layour. It is possible to choose what player(s) to include
+specific course and layout. It is possible to choose what player(s) to include
 in the plot.
 
 Here is an example use for course "Vipan" and layout "Main" for all players.
 Remember to always specify the directory containing your UDisc CSV files:
 
 ```
-python udisc_analysis.py course-analysis --csv-dir score_cards --course Vipan --layout Main --plot-par
+python udisc_analysis.py hole-distribution --csv-dir score_cards --course Vipan --layout Main --plot-par
 ```
 
 Which generates a plot, such as:
 
-![course-analysis-demo](docs/course-analysis-demo.png)
+![hole-distribution-demo](docs/hole-distribution-demo.png)
 
 To specify for what player(s) to include in the plot, add one or more players by
 using the `-p` or `--player` option:
 
 ```
-python udisc_analysis.py course-analysis -d score_cards -c Vipan --layout Main -p 'Isak ”Bush Walker” Jacobsson' -p Johanna
+python udisc_analysis.py hole-distribution -d score_cards -c Vipan --layout Main -p 'Isak ”Bush Walker” Jacobsson' -p Johanna
 ```
 
-For more options and help for how to use the `course-analysis` subcommand run
+For more options and help for how to use the `hole-distribution` subcommand run
 the help command:
 
 ```
-python udisc_analysis.py course-analysis -h
+python udisc_analysis.py hole-distribution -h
 ```
 
 ### Performance Over Time
