@@ -236,7 +236,6 @@ def performance_over_time(args):
     df, par_df = generate_dataframe_per_round(args.csv_dir)
     
     df = filter_df(df, args.course, args.layout, players=args.players, stat=args.stat)
-
     par_df = filter_df(par_df, args.course, args.layout, stat=args.stat)
 
     plot_performance(df, par_df, args.course, args.layout, args.players, args.stat, args.output, args.plot_par)
