@@ -6,92 +6,62 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 
-def generate_dataframe_per_hole(csv_dir):
+def load_and_format_csv(file):
+    df = pd.read_csv(file)
+
+    # Normalize smart quotes in all string columns (e.g., PlayerName)
+    for col in df.select_dtypes(include=['object']).columns:
+        df[col] = df[col].str.replace('[“”]', '"', regex=True)
+
+    # Set type for StartDate and EndDate
+    df["StartDate"] = pd.to_datetime(df["StartDate"])
+    df["EndDate"] = pd.to_datetime(df["EndDate"])
+    return df
+
+def generate_dataframe(csv_dir, mode="hole"):
     # Load all CSV files from a directory
     csv_files = glob.glob(os.path.join(csv_dir, "*.csv"))
 
-    result_df = pd.DataFrame()
-    result_par_df = pd.DataFrame()
+    result_df, result_par_df = pd.DataFrame(), pd.DataFrame()
 
     for file in csv_files:
-        df = pd.read_csv(file)
-
-        # Normalize smart quotes in all string columns (e.g., PlayerName)
-        for col in df.select_dtypes(include=['object']).columns:
-            df[col] = df[col].str.replace('[“”]', '"', regex=True)
-        
-        # Set type for StartDate and EndDate
-        df["StartDate"] = pd.to_datetime(df["StartDate"])
-        df["EndDate"] = pd.to_datetime(df["EndDate"])
-        
-        # Only include hole columns
+        df = load_and_format_csv(file)
         hole_cols = [col for col in df.columns if col.startswith("Hole")]
 
-        # Melt hole columns: 'Hole' and 'Strokes'
-        df_long = df.melt(
-            id_vars=["PlayerName", "CourseName", "LayoutName", "StartDate", "EndDate"],
-            value_vars=hole_cols,
-            var_name="Hole",
-            value_name="Score"
-        )
+        if mode == "hole":
+            # Melt hole columns: 'Hole' and 'Strokes'
+            df = df.melt(
+                id_vars=["PlayerName", "CourseName", "LayoutName", "StartDate", "EndDate"],
+                value_vars=hole_cols,
+                var_name="Hole",
+                value_name="Score"
+            )
 
-        # Extract hole number from "Hole1", "Hole2", ..
-        df_long["Hole"] = df_long["Hole"].str.extract("(\d+)").astype(int)
+            # Extract hole number from "Hole1", "Hole2", ..
+            df["Hole"] = df["Hole"].str.extract("(\d+)").astype(int)
 
-        # Filter out 0 or NaN scores (unfinished holes)
-        df_long = df_long[df_long["Score"] > 0]
+            # Filter out 0 or NaN scores (unfinished holes)
+            df = df[df["Score"] > 0]
+        elif mode == "round":
+            for index, row in df.iterrows():
+                round_finished = True
+                for hole in hole_cols:
+                    if row[hole] == 0:
+                        round_finished = False
+                        break
+                if  not round_finished:
+                    df.at[index, "Total"] = 0
+        else:
+            print("mode must be one of 'hole' or 'round'.")
+            exit()
         
-        # Concat to result_par_df
-        par_df = df_long[df_long["PlayerName"] == "Par"].copy()
-        par_df = par_df.drop(columns=["StartDate", "EndDate"])
-        result_par_df = pd.concat([result_par_df, par_df], ignore_index=True)
-        
-        # Conat to result_df
-        df_long = df_long[df_long["PlayerName"] != "Par"]
-        result_df = pd.concat([result_df, df_long], ignore_index=True)
-
-    # No need for multiple rows of the same course and layout
-    result_par_df = result_par_df.drop_duplicates()
-
-    return result_df, result_par_df
-
-def generate_dataframe_per_round(csv_dir):
-    # Load all CSV files from a directory
-    csv_files = glob.glob(os.path.join(csv_dir, "*.csv"))
-
-    result_df = pd.DataFrame()
-    result_par_df = pd.DataFrame()
-
-    for file in csv_files:
-        df = pd.read_csv(file)
-
-        # Normalize smart quotes in all string columns (e.g., PlayerName)
-        for col in df.select_dtypes(include=['object']).columns:
-            df[col] = df[col].str.replace('[“”]', '"', regex=True)
-        
-        # Set type for StartDate and EndDate
-        df["StartDate"] = pd.to_datetime(df["StartDate"])
-        df["EndDate"] = pd.to_datetime(df["EndDate"])
-
-        # Set Total to zero if the round wasn't completed
-        holes = [col for col in df.columns if col.startswith("Hole")]
-        for index, row in df.iterrows():
-            round_finished = True
-            for hole in holes:
-                if row[hole] == 0:
-                    round_finished = False
-                    break
-            if  not round_finished:
-                df.at[index, "Total"] = 0
-    
-        # Concat to result_par_df
-        par_df = df[df["PlayerName"] == "Par"].copy()
-        par_df = par_df.drop(columns=["StartDate", "EndDate"])
-        result_par_df = pd.concat([result_par_df, par_df], ignore_index=True)
-        
-        # Conat to result_df
+        # Create par and player df
+        par_df = df[df["PlayerName"] == "Par"].drop(columns=["StartDate", "EndDate"])
         df = df[df["PlayerName"] != "Par"]
+
+        # Concat dfs into result dfs
         result_df = pd.concat([result_df, df], ignore_index=True)
+        result_par_df = pd.concat([result_par_df, par_df], ignore_index=True)
 
     # No need for multiple rows of the same course and layout
     result_par_df = result_par_df.drop_duplicates()
@@ -225,7 +195,7 @@ def plot_hole_distribution(df, par_df, course_name, layout_name, players, output
     plt.show()
 
 def score_distribution(args):
-    df, par_df = generate_dataframe_per_hole(args.csv_dir)
+    df, par_df = generate_dataframe(args.csv_dir)
 
     df = filter_df(df, args.course, args.layout, args.players)
     df = convert_to_score_distribution(df, par_df)
@@ -233,7 +203,7 @@ def score_distribution(args):
     plot_distribution(df, args.players, args.course, args.layout, args.output)
 
 def performance_over_time(args):
-    df, par_df = generate_dataframe_per_round(args.csv_dir)
+    df, par_df = generate_dataframe(args.csv_dir, mode="round")
     
     df = filter_df(df, args.course, args.layout, players=args.players, stat=args.stat)
     par_df = filter_df(par_df, args.course, args.layout, stat=args.stat)
@@ -241,7 +211,7 @@ def performance_over_time(args):
     plot_performance(df, par_df, args.course, args.layout, args.players, args.stat, args.output, args.plot_par)
 
 def hole_distribution(args):
-    df, par_df = generate_dataframe_per_hole(args.csv_dir)
+    df, par_df = generate_dataframe(args.csv_dir)
 
     df = filter_df(df, args.course, args.layout, players=args.players)
     par_df = filter_df(par_df, args.course, args.layout)
