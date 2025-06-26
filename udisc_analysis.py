@@ -224,30 +224,30 @@ def plot_hole_distribution(df, par_df, course_name, layout_name, players, output
         plt.savefig(output_path, dpi=100)
     plt.show()
 
-def score_distribution(args, players):
+def score_distribution(args):
     df, par_df = generate_dataframe_per_hole(args.csv_dir)
 
-    df = filter_df(df, args.course, args.layout, players)
+    df = filter_df(df, args.course, args.layout, args.players)
     df = convert_to_score_distribution(df, par_df)
 
-    plot_distribution(df, players, args.course, args.layout, args.output)
+    plot_distribution(df, args.players, args.course, args.layout, args.output)
 
-def performance_over_time(args, players):
+def performance_over_time(args):
     df, par_df = generate_dataframe_per_round(args.csv_dir)
     
-    df = filter_df(df, args.course, args.layout, players=players, stat=args.stat)
+    df = filter_df(df, args.course, args.layout, players=args.players, stat=args.stat)
 
     par_df = filter_df(par_df, args.course, args.layout, stat=args.stat)
 
-    plot_performance(df, par_df, args.course, args.layout, players, args.stat, args.output, args.plot_par)
+    plot_performance(df, par_df, args.course, args.layout, args.players, args.stat, args.output, args.plot_par)
 
-def hole_distribution(args, players):
+def hole_distribution(args):
     df, par_df = generate_dataframe_per_hole(args.csv_dir)
 
-    df = filter_df(df, args.course, args.layout, players=players)
+    df = filter_df(df, args.course, args.layout, players=args.players)
     par_df = filter_df(par_df, args.course, args.layout)
 
-    plot_hole_distribution(df, par_df, args.course, args.layout, players, args.output, args.plot_par)
+    plot_hole_distribution(df, par_df, args.course, args.layout, args.players, args.output, args.plot_par)
 
 def main():
     parser = argparse.ArgumentParser(description="UDisc CSV Stats Analyzer")
@@ -371,14 +371,14 @@ def main():
     args = parser.parse_args()
     
     # Needs to be set to ["All"] if not set
-    players = args.player if args.player is not None else ["All"]
+    args.players = args.player if args.player is not None else ["All"]
 
     if args.command == "score-distribution":
-        score_distribution(args, players)
+        score_distribution(args)
     elif args.command == "performance-over-time":
-        performance_over_time(args, players)
+        performance_over_time(args)
     elif args.command == "hole-distribution":
-        hole_distribution(args, players)
+        hole_distribution(args)
 
 if __name__ == "__main__":
     main()
