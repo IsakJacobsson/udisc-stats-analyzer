@@ -127,10 +127,18 @@ def plot_distribution(df, players, course_name, layout_name, output_path):
 
     sns.set_theme(palette="pastel")
 
+    # Show raw counts in the pie chart
+    def make_label(pct, all_vals):
+        absolute = int(round(pct/100.*sum(all_vals)))
+        return f"{pct:.1f}%\n({absolute})"
+    
+    labels = [f"{label}" for label in score_counts.index]
+    autopct = lambda pct: make_label(pct, score_counts)
+
     plt.pie(
         score_counts,
-        labels=score_counts.index,
-        autopct="%1.1f%%",
+        labels=labels,
+        autopct=autopct,
         startangle=90,
         textprops={'fontsize': 12}
     )
