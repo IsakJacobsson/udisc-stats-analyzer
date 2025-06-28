@@ -133,7 +133,7 @@ python udisc_analysis.py score-distribution --csv-dir score_cards
 
 Which generates a plot, such as:
 
-![distribution-demo](docs/distribution-demo.png)
+![score-distribution-demo](docs/score-distribution-demo.png)
 
 You can also provide specific course, layout and player(s) to plot for, e.g:
 
