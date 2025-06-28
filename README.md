@@ -147,3 +147,40 @@ the help command:
 ```
 python udisc_analysis.py score-distribution -h
 ```
+
+### Basic Stats
+
+Print basic stats with the `basic-stats` subcommand.
+
+This subcommand will print basic stats, such as number of rounds, number of
+holes, and number of throws. By default the subcommand will print basic stats
+for all players and all courses.
+
+An example use of the subcommand is seen below. Remember to always specify the
+directory containing your UDisc CSV files:
+
+```
+python udisc_analysis.py basic-stats --csv-dir score_cards
+```
+
+Which prints:
+
+```
+----- Basic overview -----
+Rounds: 32
+Holes: 225
+Throws: 934
+```
+
+You can also provide specific course, layout and player(s) to print for, e.g:
+
+```
+python udisc_analysis.py basic-stats --csv-dir score_cards -c Vipan -l Main -p 'Isak "Bush Walker" Jacobsson'
+```
+
+For more options and help for how to use the `basic-stats` subcommand run the
+help command:
+
+```
+python udisc_analysis.py basic-stats -h
+```

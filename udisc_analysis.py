@@ -209,6 +209,13 @@ def plot_hole_distribution(df, par_df, course_name, layout_name, players, output
         plt.savefig(output_path, dpi=100)
     plt.show()
 
+def print_basic_stats(df):
+    print("----- Basic overview -----")
+    num_rounds = len(df[['PlayerName', 'StartDate']].drop_duplicates())
+    print(f"Rounds: {num_rounds}")
+    print(f"Holes: {len(df)}")
+    print(f"Throws: {df['Score'].sum()}")
+
 def score_distribution(args):
     df, par_df = generate_dataframe(args.csv_dir)
 
@@ -232,6 +239,13 @@ def hole_distribution(args):
     par_df = filter_df(par_df, args.course, args.layout)
 
     plot_hole_distribution(df, par_df, args.course, args.layout, args.players, args.output, args.plot_par)
+
+def basic_stats(args):
+    df, _ = generate_dataframe(args.csv_dir)
+
+    df = filter_df(df, args.course, args.layout, players=args.players)
+
+    print_basic_stats(df)
 
 def main():
     parser = argparse.ArgumentParser(description="UDisc CSV Stats Analyzer")
@@ -352,6 +366,44 @@ def main():
         help="Include par line in plot"
     )
 
+    # Basic stats subparser
+    parser_basic_stats = subparsers.add_parser("basic-stats", help="Get some basic stats")
+    parser_basic_stats.add_argument(
+        "-d", "--csv-dir",
+        type=str,
+        required=True,
+        help="Path to the directory containing UDisc CSV files"
+    )
+    parser_basic_stats.add_argument(
+        "-c", "--course",
+        type=str,
+        default="All",
+        help="Course name to filter by"
+    )
+    parser_basic_stats.add_argument(
+        "-l", "--layout",
+        type=str,
+        default="All",
+        help="Layout name to filter by"
+    )
+    parser_basic_stats.add_argument(
+        "-p", "--player",
+        action="append",
+        default=None,
+        help="Player name(s) to filter by (can be used multiple times, e.g., -p Alice -p Bob). Will default to 'All'"
+    )
+    parser_basic_stats.add_argument(
+        "-o", "--output",
+        type=str,
+        default=None,
+        help="Path to save the plot image (e.g., 'plot.png'). If not provided, the plot is only shown."
+    )
+    parser_basic_stats.add_argument(
+        "-r", "--plot-par",
+        action="store_true",
+        help="Include par line in plot"
+    )
+
     args = parser.parse_args()
     
     # Needs to be set to ["All"] if not set
@@ -363,6 +415,8 @@ def main():
         performance_over_time(args)
     elif args.command == "hole-distribution":
         hole_distribution(args)
+    elif args.command == "basic-stats":
+        basic_stats(args)
 
 if __name__ == "__main__":
     main()
