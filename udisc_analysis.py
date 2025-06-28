@@ -127,6 +127,22 @@ def plot_distribution(df, players, course_name, layout_name, output_path):
 
     sns.set_theme(palette="pastel")
 
+    # Custom colors based on score quality
+    color_map = {
+        "Worse than triple bogey": "#8B0000",  # dark red
+        "Triple Bogey": "#B22222",             # firebrick
+        "Double Bogey": "#DC143C",             # crimson
+        "Bogey": "#FF6347",                    # tomato
+        "Par": "#32CD32",                      # lime green
+        "Birdie": "#7CFC00",                   # lawn green
+        "Eagle": "#228B22",                    # forest green
+        "Albatros": "#00CED1",                 # dark turquoise
+        "Condor": "#1E90FF",                   # dodger blue
+        "Hole-in-one": "#9370DB"               # medium purple
+    }
+
+    colors = [color_map[label] for label in score_counts.index]
+
     # Show raw counts in the pie chart
     def make_label(pct, all_vals):
         absolute = int(round(pct/100.*sum(all_vals)))
@@ -140,7 +156,8 @@ def plot_distribution(df, players, course_name, layout_name, output_path):
         labels=labels,
         autopct=autopct,
         startangle=90,
-        textprops={'fontsize': 12}
+        textprops={'fontsize': 12},
+        colors=colors
     )
     
     plt.title(f"Distribution for course: {course_name}, layout: {layout_name}, player(s): {players}")
