@@ -1,6 +1,7 @@
 import argparse
 import glob
 import os
+import itertools
 
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -172,6 +173,10 @@ def plot_performance(df, par_df, course_name, layout_name, players, stat, output
     if players[0] == "All":
         players = list(df["PlayerName"].unique())
 
+    # Marker styles
+    marker_styles = ['o', 's', 'D', '^', 'v', '<', '>', 'P', 'X', '*', '+', 'H', '1', '2', '3', '4']
+    marker_cycle = itertools.cycle(marker_styles)
+
     # Shared round index for all players
     if x_axis_mode == "round":
         # Get unique sorted dates and assign a round number
@@ -183,9 +188,10 @@ def plot_performance(df, par_df, course_name, layout_name, players, stat, output
         player_df = df[df["PlayerName"] == player].copy()
 
         x_col = "RoundIndex" if x_axis_mode == "round" else "StartDate"
+        marker = next(marker_cycle)
 
         # Plot stat for player
-        sns.lineplot(data=player_df, x=x_col, y=stat, label=player, marker='o', alpha=0.8)
+        sns.lineplot(data=player_df, x=x_col, y=stat, label=player, marker=marker, alpha=0.8)
     
     if plot_par:
         plt.axhline(y=par_df.loc[0, stat], label='Par', linewidth=2.5, alpha=0.8, color="green", linestyle="--")
