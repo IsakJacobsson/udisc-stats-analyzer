@@ -166,23 +166,33 @@ def plot_distribution(df, players, course_name, layout_name, output_path):
         plt.savefig(output_path, dpi=100)
     plt.show()
 
-def plot_performance(df, par_df, course_name, layout_name, players, stat, output_path, plot_par):
+def plot_performance(df, par_df, course_name, layout_name, players, stat, output_path, plot_par, x_axis_mode):
     sns.set_theme(style="ticks", palette="pastel")
 
     if players[0] == "All":
         players = list(df["PlayerName"].unique())
 
+    # Shared round index for all players
+    if x_axis_mode == "round":
+        # Get unique sorted dates and assign a round number
+        unique_dates = sorted(df["StartDate"].unique())
+        date_to_round = {date: idx + 1 for idx, date in enumerate(unique_dates)}
+        df["RoundIndex"] = df["StartDate"].map(date_to_round)
+
     for player in players:
-        player_df = df[df["PlayerName"] == player]
+        player_df = df[df["PlayerName"] == player].copy()
+
+        x_col = "RoundIndex" if x_axis_mode == "round" else "StartDate"
 
         # Plot stat for player
-        sns.lineplot(data=player_df, x="StartDate", y=stat, label=player, marker='o', alpha=0.8)
+        sns.lineplot(data=player_df, x=x_col, y=stat, label=player, marker='o', alpha=0.8)
     
     if plot_par:
         plt.axhline(y=par_df.loc[0, stat], label='Par', linewidth=2.5, alpha=0.8, color="green", linestyle="--")
     
-    plt.title(f"Performance over time for {stat} on {course_name}, {layout_name}")
-    plt.grid(True)
+    x_axis_label = "Round number" if x_axis_mode == "round" else "Date"
+    plt.xlabel(x_axis_label)
+    plt.title(f"{stat} over {'rounds' if x_axis_mode == 'round' else 'time'} for {course_name}, {layout_name}")
     if output_path:
         plt.savefig(output_path, dpi=100)
     plt.show()
@@ -231,7 +241,7 @@ def performance_over_time(args):
     df = filter_df(df, args.course, args.layout, players=args.players, stat=args.stat)
     par_df = filter_df(par_df, args.course, args.layout, stat=args.stat)
 
-    plot_performance(df, par_df, args.course, args.layout, args.players, args.stat, args.output, args.plot_par)
+    plot_performance(df, par_df, args.course, args.layout, args.players, args.stat, args.output, args.plot_par, args.x_axis_mode)
 
 def hole_distribution(args):
     df, par_df = generate_dataframe(args.csv_dir)
@@ -327,6 +337,12 @@ def main():
         "-r", "--plot-par",
         action="store_true",
         help="Include par line in plot"
+    )
+    parser_perf.add_argument(
+        "--x-axis-mode",
+        choices=["round", "date"],
+        default='round',
+        help="Choose 'date' to plot against actual dates or 'round' to plot by round number."
     )
 
     # Hole distribution subparser

@@ -99,7 +99,7 @@ python udisc_analysis.py performance-over-time --csv-dir score_cards --course Vi
 
 Which generates a plot, such as:
 
-![performance-over-time-demo](docs/performance_over_time.png)
+![perf-over-time-demo](docs/perf-over-time-demo.png)
 
 To specify a specific stat, use the `-s` or `--stat` option followed by e.g.
 `Hole1`.
