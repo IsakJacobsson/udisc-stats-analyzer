@@ -109,7 +109,7 @@ def filter_df(df, course_name, layout_name, players=None, stat=None):
         df = df[df["LayoutName"] == layout_name]
     
     if players and players[0] != "All":
-        return df[df['PlayerName'].isin(players)]
+        df = df[df['PlayerName'].isin(players)]
     
     if stat:
         df = df[df[stat] != 0]
