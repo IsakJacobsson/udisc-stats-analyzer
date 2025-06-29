@@ -112,6 +112,7 @@ def filter_df(df, course_name, layout_name, players=None, stat=None):
         df = df[df['PlayerName'].isin(players)]
     
     if stat:
+        # Stats with 0 are not valid because they are not filled in
         df = df[df[stat] != 0]
     
     return df
