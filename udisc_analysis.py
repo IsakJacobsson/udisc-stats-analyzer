@@ -7,6 +7,12 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 
+def valid_date(s):
+    try:
+        return pd.Timestamp(s)
+    except Exception:
+        raise argparse.ArgumentTypeError(f"Invalid date: '{s}'. Format must be YYYY-MM-DD")
+    
 def load_and_format_csv(file):
     df = pd.read_csv(file)
 
@@ -102,12 +108,18 @@ def convert_to_score_distribution(df, par_df):
 
     return pd.DataFrame(distribution)
 
-def filter_df(df, course_name, layout_name, players=None, stat=None):
+def filter_df(df, course_name, layout_name, after_date=None, before_date=None, players=None, stat=None):
     if course_name != "All":
         df = df[df["CourseName"] == course_name]
     
     if layout_name != "All":
         df = df[df["LayoutName"] == layout_name]
+    
+    if after_date:
+        df = df[df["StartDate"] >= after_date]
+
+    if before_date:
+        df = df[df["StartDate"] <= before_date]
     
     if players and players[0] != "All":
         df = df[df['PlayerName'].isin(players)]
@@ -236,7 +248,7 @@ def print_basic_stats(df):
 def score_distribution(args):
     df, par_df = generate_dataframe(args.csv_dir)
 
-    df = filter_df(df, args.course, args.layout, args.players)
+    df = filter_df(df, args.course, args.layout, args.after, args.before, args.players)
     df = convert_to_score_distribution(df, par_df)
 
     plot_distribution(df, args.players, args.course, args.layout, args.output)
@@ -244,7 +256,7 @@ def score_distribution(args):
 def performance_over_time(args):
     df, par_df = generate_dataframe(args.csv_dir, mode="round")
     
-    df = filter_df(df, args.course, args.layout, players=args.players, stat=args.stat)
+    df = filter_df(df, args.course, args.layout, args.after, args.before, players=args.players, stat=args.stat)
     par_df = filter_df(par_df, args.course, args.layout, stat=args.stat)
 
     plot_performance(df, par_df, args.course, args.layout, args.players, args.stat, args.output, args.plot_par, args.x_axis_mode)
@@ -252,7 +264,7 @@ def performance_over_time(args):
 def hole_distribution(args):
     df, par_df = generate_dataframe(args.csv_dir)
 
-    df = filter_df(df, args.course, args.layout, players=args.players)
+    df = filter_df(df, args.course, args.layout, args.after, args.before, players=args.players)
     par_df = filter_df(par_df, args.course, args.layout)
 
     plot_hole_distribution(df, par_df, args.course, args.layout, args.players, args.output, args.plot_par)
@@ -260,7 +272,7 @@ def hole_distribution(args):
 def basic_stats(args):
     df, _ = generate_dataframe(args.csv_dir)
 
-    df = filter_df(df, args.course, args.layout, players=args.players)
+    df = filter_df(df, args.course, args.layout, args.after, args.before, players=args.players)
 
     print_basic_stats(df)
 
@@ -299,6 +311,18 @@ def main():
         type=str,
         default=None,
         help="Path to save the plot image (e.g., 'plot.png'). If not provided, the plot is only shown."
+    )
+    parser_score.add_argument(
+        "--after",
+        type=valid_date,
+        default=None,
+        help="Only include data after this date (inclusive). Format: YYYY-MM-DD"
+    )
+    parser_score.add_argument(
+        "--before",
+        type=valid_date,
+        default=None,
+        help="Only include data before this date (inclusive). Format: YYYY-MM-DD"
     )
 
     # Performance over time subparser
@@ -350,6 +374,18 @@ def main():
         default='round',
         help="Choose 'date' to plot against actual dates or 'round' to plot by round number."
     )
+    parser_perf.add_argument(
+        "--after",
+        type=valid_date,
+        default=None,
+        help="Only include data after this date (inclusive). Format: YYYY-MM-DD"
+    )
+    parser_perf.add_argument(
+        "--before",
+        type=valid_date,
+        default=None,
+        help="Only include data before this date (inclusive). Format: YYYY-MM-DD"
+    )
 
     # Hole distribution subparser
     parser_course = subparsers.add_parser("hole-distribution", help="Analyze scores per course")
@@ -388,6 +424,18 @@ def main():
         action="store_true",
         help="Include par line in plot"
     )
+    parser_course.add_argument(
+        "--after",
+        type=valid_date,
+        default=None,
+        help="Only include data after this date (inclusive). Format: YYYY-MM-DD"
+    )
+    parser_course.add_argument(
+        "--before",
+        type=valid_date,
+        default=None,
+        help="Only include data before this date (inclusive). Format: YYYY-MM-DD"
+    )
 
     # Basic stats subparser
     parser_basic_stats = subparsers.add_parser("basic-stats", help="Get some basic stats")
@@ -425,6 +473,18 @@ def main():
         "-r", "--plot-par",
         action="store_true",
         help="Include par line in plot"
+    )
+    parser_basic_stats.add_argument(
+        "--after",
+        type=valid_date,
+        default=None,
+        help="Only include data after this date (inclusive). Format: YYYY-MM-DD"
+    )
+    parser_basic_stats.add_argument(
+        "--before",
+        type=valid_date,
+        default=None,
+        help="Only include data before this date (inclusive). Format: YYYY-MM-DD"
     )
 
     args = parser.parse_args()
