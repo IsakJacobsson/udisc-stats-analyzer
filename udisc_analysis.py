@@ -286,7 +286,7 @@ def main():
         "-d", "--csv-dir",
         type=str,
         required=True,
-        help="Path to the directory containing UDisc CSV files"
+        help="Path to the directory containing UDisc CSV files."
     )
     parser_score.add_argument(
         "-c", "--course",
@@ -304,7 +304,7 @@ def main():
         "-p", "--player",
         action="append",
         default=None,
-        help="Player name(s) to filter by (can be used multiple times, e.g., -p Alice -p Bob). Will default to 'All'"
+        help="Player name(s) to filter by (can be used multiple times, e.g., -p Alice -p Bob). Will default to 'All'."
     )
     parser_score.add_argument(
         "-o", "--output",
@@ -316,13 +316,13 @@ def main():
         "--after",
         type=valid_date,
         default=None,
-        help="Only include data after this date (inclusive). Format: YYYY-MM-DD"
+        help="Only include data after this date (inclusive). Format: YYYY-MM-DD."
     )
     parser_score.add_argument(
         "--before",
         type=valid_date,
         default=None,
-        help="Only include data before this date (inclusive). Format: YYYY-MM-DD"
+        help="Only include data before this date (inclusive). Format: YYYY-MM-DD."
     )
 
     # Performance over time subparser
@@ -331,31 +331,31 @@ def main():
         "-d", "--csv-dir",
         type=str,
         required=True,
-        help="Path to the directory containing UDisc CSV files"
+        help="Path to the directory containing UDisc CSV files."
     )
     parser_perf.add_argument(
         "-c", "--course",
         type=str,
         required=True,
-        help="Course name to filter by"
+        help="Course name to filter by."
     )
     parser_perf.add_argument(
         "-l", "--layout",
         type=str,
         required=True,
-        help="Layout name to filter by"
+        help="Layout name to filter by."
     )
     parser_perf.add_argument(
         "-p", "--player",
         action="append",
         default=None,
-        help="Player name(s) to filter by (can be used multiple times, e.g., -p Alice -p Bob). Will default to 'All'"
+        help="Player name(s) to filter by (can be used multiple times, e.g., -p Alice -p Bob). Will default to 'All'."
     )
     parser_perf.add_argument(
         "-s", "--stat",
         type=str,
         default="Total",
-        help="What stat to plot, e.g., Total, Hole1, Hole18"
+        help="What stat to plot, e.g., Total, Hole1, Hole18."
     )
     parser_perf.add_argument(
         "-o", "--output",
@@ -366,7 +366,7 @@ def main():
     parser_perf.add_argument(
         "-r", "--plot-par",
         action="store_true",
-        help="Include par line in plot"
+        help="Include par reference in plot."
     )
     parser_perf.add_argument(
         "--x-axis-mode",
@@ -378,13 +378,13 @@ def main():
         "--after",
         type=valid_date,
         default=None,
-        help="Only include data after this date (inclusive). Format: YYYY-MM-DD"
+        help="Only include data after this date (inclusive). Format: YYYY-MM-DD."
     )
     parser_perf.add_argument(
         "--before",
         type=valid_date,
         default=None,
-        help="Only include data before this date (inclusive). Format: YYYY-MM-DD"
+        help="Only include data before this date (inclusive). Format: YYYY-MM-DD."
     )
 
     # Hole distribution subparser
@@ -393,25 +393,25 @@ def main():
         "-d", "--csv-dir",
         type=str,
         required=True,
-        help="Path to the directory containing UDisc CSV files"
+        help="Path to the directory containing UDisc CSV files."
     )
     parser_course.add_argument(
         "-c", "--course",
         type=str,
         required=True,
-        help="Course name to filter by"
+        help="Course name to filter by."
     )
     parser_course.add_argument(
         "-l", "--layout",
         type=str,
         required=True,
-        help="Layout name to filter by"
+        help="Layout name to filter by."
     )
     parser_course.add_argument(
         "-p", "--player",
         action="append",
         default=None,
-        help="Player name(s) to filter by (can be used multiple times, e.g., -p Alice -p Bob). Will default to 'All'"
+        help="Player name(s) to filter by (can be used multiple times, e.g., -p Alice -p Bob). Will default to 'All'."
     )
     parser_course.add_argument(
         "-o", "--output",
@@ -422,19 +422,19 @@ def main():
     parser_course.add_argument(
         "-r", "--plot-par",
         action="store_true",
-        help="Include par line in plot"
+        help="Include par reference in plot."
     )
     parser_course.add_argument(
         "--after",
         type=valid_date,
         default=None,
-        help="Only include data after this date (inclusive). Format: YYYY-MM-DD"
+        help="Only include data after this date (inclusive). Format: YYYY-MM-DD."
     )
     parser_course.add_argument(
         "--before",
         type=valid_date,
         default=None,
-        help="Only include data before this date (inclusive). Format: YYYY-MM-DD"
+        help="Only include data before this date (inclusive). Format: YYYY-MM-DD."
     )
 
     # Basic stats subparser
@@ -443,48 +443,37 @@ def main():
         "-d", "--csv-dir",
         type=str,
         required=True,
-        help="Path to the directory containing UDisc CSV files"
+        help="Path to the directory containing UDisc CSV files."
     )
     parser_basic_stats.add_argument(
         "-c", "--course",
         type=str,
         default="All",
-        help="Course name to filter by"
+        help="Course name to filter by. Will default to 'All'."
     )
     parser_basic_stats.add_argument(
         "-l", "--layout",
         type=str,
         default="All",
-        help="Layout name to filter by"
+        help="Layout name to filter by. Will default to 'All'."
     )
     parser_basic_stats.add_argument(
         "-p", "--player",
         action="append",
         default=None,
-        help="Player name(s) to filter by (can be used multiple times, e.g., -p Alice -p Bob). Will default to 'All'"
-    )
-    parser_basic_stats.add_argument(
-        "-o", "--output",
-        type=str,
-        default=None,
-        help="Path to save the plot image (e.g., 'plot.png'). If not provided, the plot is only shown."
-    )
-    parser_basic_stats.add_argument(
-        "-r", "--plot-par",
-        action="store_true",
-        help="Include par line in plot"
+        help="Player name(s) to filter by (can be used multiple times, e.g., -p Alice -p Bob). Will default to 'All'."
     )
     parser_basic_stats.add_argument(
         "--after",
         type=valid_date,
         default=None,
-        help="Only include data after this date (inclusive). Format: YYYY-MM-DD"
+        help="Only include data after this date (inclusive). Format: YYYY-MM-DD."
     )
     parser_basic_stats.add_argument(
         "--before",
         type=valid_date,
         default=None,
-        help="Only include data before this date (inclusive). Format: YYYY-MM-DD"
+        help="Only include data before this date (inclusive). Format: YYYY-MM-DD."
     )
 
     args = parser.parse_args()

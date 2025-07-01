@@ -66,19 +66,20 @@ Which generates a plot, such as:
 
 ![hole-distribution-demo](docs/hole-distribution-demo.png)
 
-To specify for what player(s) to include in the plot, add one or more players by
-using the `-p` or `--player` option:
+#### Arguments
 
-```
-python udisc_analysis.py hole-distribution -d score_cards -c Vipan --layout Main -p 'Isak ”Bush Walker” Jacobsson' -p Johanna
-```
-
-For more options and help for how to use the `hole-distribution` subcommand run
-the help command:
-
-```
-python udisc_analysis.py hole-distribution -h
-```
+- `-d/--csv-dir` - Path to the directory containing UDisc CSV files.
+  **Required**
+- `-c/--course` - Course name to filter by. **Required**
+- `-l/--layout` - Layout name to filter by. **Required**
+- `-p/--player` - Player name(s) to filter by (can be used multiple times,
+  e.g., -p Alice -p Bob). Will default to 'All'.
+- `--after` - Only include data after this date (inclusive). Format: YYYY-MM-DD.
+- `--before` - Only include data before this date (inclusive). Format:
+  YYYY-MM-DD.
+- `-o/--output` - Path to save the plot image (e.g., 'plot.png'). If not
+  provided, the plot is only shown.
+- `-r/--plot-par` - Include par reference in plot.
 
 ### Performance Over Time
 
@@ -101,19 +102,23 @@ Which generates a plot, such as:
 
 ![perf-over-time-demo](docs/perf-over-time-demo.png)
 
-To specify a specific stat, use the `-s` or `--stat` option followed by e.g.
-`Hole1`.
+#### Arguments
 
-```
-python udisc_analysis.py performance-over-time -d score_cards -c Vipan --layout Main -s Hole1
-```
-
-For more options and help for how to use the `performance-over-time` subcommand
-run the help command:
-
-```
-python udisc_analysis.py performance-over-time -h
-```
+- `-d/--csv-dir` - Path to the directory containing UDisc CSV files.
+  **Required**
+- `-c/--course` - Course name to filter by. **Required**
+- `-l/--layout` - Layout name to filter by. **Required**
+- `-p/--player` - Player name(s) to filter by (can be used multiple times,
+  e.g., -p Alice -p Bob). Will default to 'All'.
+- `--after` - Only include data after this date (inclusive). Format: YYYY-MM-DD.
+- `--before` - Only include data before this date (inclusive). Format:
+  YYYY-MM-DD.
+- `-o/--output` - Path to save the plot image (e.g., 'plot.png'). If not
+  provided, the plot is only shown.
+- `-r/--plot-par` - Include par reference in plot.
+- `-s/--stat` - What stat to plot, e.g., Total, Hole1, Hole18.
+- `--x-axis-mode` - Choose 'date' to plot against actual dates or 'round' to
+  plot by round number.
 
 ### Score Distribution
 
@@ -135,18 +140,19 @@ Which generates a plot, such as:
 
 ![score-distribution-demo](docs/score-distribution-demo.png)
 
-You can also provide specific course, layout and player(s) to plot for, e.g:
+#### Arguments
 
-```
-python udisc_analysis.py score-distribution --csv-dir score_cards -c Vipan -l Main -p 'Isak "Bush Walker" Jacobsson'
-```
-
-For more options and help for how to use the `score-distribution` subcommand run
-the help command:
-
-```
-python udisc_analysis.py score-distribution -h
-```
+- `-d/--csv-dir` - Path to the directory containing UDisc CSV files.
+  **Required**
+- `-c/--course` - Course name to filter by. Will default to 'All'.
+- `-l/--layout` - Layout name to filter by. Will default to 'All'.
+- `-p/--player` - Player name(s) to filter by (can be used multiple times,
+  e.g., -p Alice -p Bob). Will default to 'All'.
+- `--after` - Only include data after this date (inclusive). Format: YYYY-MM-DD.
+- `--before` - Only include data before this date (inclusive). Format:
+  YYYY-MM-DD.
+- `-o/--output` - Path to save the plot image (e.g., 'plot.png'). If not
+  provided, the plot is only shown.
 
 ### Basic Stats
 
@@ -172,15 +178,14 @@ Holes: 225
 Throws: 934
 ```
 
-You can also provide specific course, layout and player(s) to print for, e.g:
+#### Arguments
 
-```
-python udisc_analysis.py basic-stats --csv-dir score_cards -c Vipan -l Main -p 'Isak "Bush Walker" Jacobsson'
-```
-
-For more options and help for how to use the `basic-stats` subcommand run the
-help command:
-
-```
-python udisc_analysis.py basic-stats -h
-```
+- `-d/--csv-dir` - Path to the directory containing UDisc CSV files.
+  **Required**
+- `-c/--course` - Course name to filter by. Will default to 'All'.
+- `-l/--layout` - Layout name to filter by. Will default to 'All'.
+- `-p/--player` - Player name(s) to filter by (can be used multiple times,
+  e.g., -p Alice -p Bob). Will default to 'All'.
+- `--after` - Only include data after this date (inclusive). Format: YYYY-MM-DD.
+- `--before` - Only include data before this date (inclusive). Format:
+  YYYY-MM-DD.
