@@ -1,6 +1,5 @@
 import argparse
-import glob
-import os
+from pathlib import Path
 import itertools
 
 import seaborn as sns
@@ -27,7 +26,7 @@ def load_and_format_csv(file):
 
 def generate_dataframe(csv_dir, mode="hole"):
     # Load all CSV files from a directory
-    csv_files = glob.glob(os.path.join(csv_dir, "*.csv"))
+    csv_files = list(Path(csv_dir).glob("*.csv"))
 
     result_df, result_par_df = pd.DataFrame(), pd.DataFrame()
 
