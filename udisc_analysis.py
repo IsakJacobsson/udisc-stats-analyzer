@@ -132,7 +132,7 @@ def plot_distribution(df, players, course_name, layout_name, output_path):
     score_counts = df["ScoreType"].value_counts()
 
     # Define the desired order
-    custom_order = ["Worse than triple bogey", "Triple Bogey", "Double Bogey", "Bogey", "Par", "Birdie", "Eagle", "Albatros", "Condor", "Hole-in-one"]
+    custom_order = ["Worse than triple bogey", "Triple Bogey", "Double Bogey", "Bogey", "Par", "Birdie", "Eagle", "Albatross", "Condor", "Hole-in-one"]
 
     # Reindex with custom order and drop missing ones
     score_counts = score_counts.reindex(custom_order).dropna()
@@ -148,7 +148,7 @@ def plot_distribution(df, players, course_name, layout_name, output_path):
         "Par": "#32CD32",                      # lime green
         "Birdie": "#7CFC00",                   # lawn green
         "Eagle": "#228B22",                    # forest green
-        "Albatros": "#00CED1",                 # dark turquoise
+        "Albatross": "#00CED1",                # dark turquoise
         "Condor": "#1E90FF",                   # dodger blue
         "Hole-in-one": "#9370DB"               # medium purple
     }
