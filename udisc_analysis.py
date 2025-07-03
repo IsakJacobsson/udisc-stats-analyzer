@@ -58,8 +58,7 @@ def generate_dataframe(csv_dir, mode="hole"):
                 if  not round_finished:
                     df.at[index, "Total"] = 0
         else:
-            print("mode must be one of 'hole' or 'round'.")
-            exit()
+            raise ValueError("mode must be one of 'hole' or 'round'")
         
         # Create par and player df
         par_df = df[df["PlayerName"] == "Par"].drop(columns=["StartDate", "EndDate"])
