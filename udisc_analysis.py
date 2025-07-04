@@ -253,7 +253,7 @@ def score_distribution(args):
 
 def performance_over_time(args):
     df, par_df = generate_dataframe(args.csv_dir, mode="round")
-    
+
     df = filter_df(df, args.course, args.layout, args.after, args.before, players=args.players, stat=args.stat)
     par_df = filter_df(par_df, args.course, args.layout, stat=args.stat)
 
@@ -274,81 +274,64 @@ def basic_stats(args):
 
     print_basic_stats(df)
 
+def add_common_arguments(parser, course_required=False, layout_required=False):
+    parser.add_argument(
+        "-d", "--csv-dir",
+        type=str,
+        required=True,
+        help="Path to the directory containing UDisc CSV files."
+    )
+    parser.add_argument(
+        "-c", "--course",
+        type=str,
+        required=course_required,
+        default=None if course_required else "All",
+        help="Course name to filter by." + (" Required." if course_required else " Will default to 'All'.")
+    )
+    parser.add_argument(
+        "-l", "--layout",
+        type=str,
+        required=layout_required,
+        default=None if layout_required else "All",
+        help="Layout name to filter by." + (" Required." if layout_required else " Will default to 'All'.")
+    )
+    parser.add_argument(
+        "-p", "--player",
+        action="append",
+        default=None,
+        help="Player name(s) to filter by (e.g., -p Alice -p Bob). Defaults to 'All'."
+    )
+    parser.add_argument(
+        "--after",
+        type=valid_date,
+        default=None,
+        help="Only include data after this date (inclusive). Format: YYYY-MM-DD."
+    )
+    parser.add_argument(
+        "--before",
+        type=valid_date,
+        default=None,
+        help="Only include data before this date (inclusive). Format: YYYY-MM-DD."
+    )
+    return parser
+
 def main():
     parser = argparse.ArgumentParser(description="UDisc CSV Stats Analyzer")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     # Score distribution subparser
     parser_score = subparsers.add_parser("score-distribution", help="Plot score type distribution")
-    parser_score.add_argument(
-        "-d", "--csv-dir",
-        type=str,
-        required=True,
-        help="Path to the directory containing UDisc CSV files."
-    )
-    parser_score.add_argument(
-        "-c", "--course",
-        type=str,
-        default="All",
-        help="Course name to filter by. Will default to 'All'."
-    )
-    parser_score.add_argument(
-        "-l", "--layout",
-        type=str,
-        default="All",
-        help="Layout name to filter by. Will default to 'All'."
-    )
-    parser_score.add_argument(
-        "-p", "--player",
-        action="append",
-        default=None,
-        help="Player name(s) to filter by (can be used multiple times, e.g., -p Alice -p Bob). Will default to 'All'."
-    )
+    add_common_arguments(parser_score)
     parser_score.add_argument(
         "-o", "--output",
         type=str,
         default=None,
         help="Path to save the plot image (e.g., 'plot.png'). If not provided, the plot is only shown."
     )
-    parser_score.add_argument(
-        "--after",
-        type=valid_date,
-        default=None,
-        help="Only include data after this date (inclusive). Format: YYYY-MM-DD."
-    )
-    parser_score.add_argument(
-        "--before",
-        type=valid_date,
-        default=None,
-        help="Only include data before this date (inclusive). Format: YYYY-MM-DD."
-    )
 
     # Performance over time subparser
     parser_perf = subparsers.add_parser("performance-over-time", help="Plot performance over time")
-    parser_perf.add_argument(
-        "-d", "--csv-dir",
-        type=str,
-        required=True,
-        help="Path to the directory containing UDisc CSV files."
-    )
-    parser_perf.add_argument(
-        "-c", "--course",
-        type=str,
-        required=True,
-        help="Course name to filter by."
-    )
-    parser_perf.add_argument(
-        "-l", "--layout",
-        type=str,
-        required=True,
-        help="Layout name to filter by."
-    )
-    parser_perf.add_argument(
-        "-p", "--player",
-        action="append",
-        default=None,
-        help="Player name(s) to filter by (can be used multiple times, e.g., -p Alice -p Bob). Will default to 'All'."
-    )
+    add_common_arguments(parser_perf, course_required=True, layout_required=True)
     parser_perf.add_argument(
         "-s", "--stat",
         type=str,
@@ -372,45 +355,10 @@ def main():
         default='round',
         help="Choose 'date' to plot against actual dates or 'round' to plot by round number."
     )
-    parser_perf.add_argument(
-        "--after",
-        type=valid_date,
-        default=None,
-        help="Only include data after this date (inclusive). Format: YYYY-MM-DD."
-    )
-    parser_perf.add_argument(
-        "--before",
-        type=valid_date,
-        default=None,
-        help="Only include data before this date (inclusive). Format: YYYY-MM-DD."
-    )
 
     # Hole distribution subparser
     parser_course = subparsers.add_parser("hole-distribution", help="Analyze scores per course")
-    parser_course.add_argument(
-        "-d", "--csv-dir",
-        type=str,
-        required=True,
-        help="Path to the directory containing UDisc CSV files."
-    )
-    parser_course.add_argument(
-        "-c", "--course",
-        type=str,
-        required=True,
-        help="Course name to filter by."
-    )
-    parser_course.add_argument(
-        "-l", "--layout",
-        type=str,
-        required=True,
-        help="Layout name to filter by."
-    )
-    parser_course.add_argument(
-        "-p", "--player",
-        action="append",
-        default=None,
-        help="Player name(s) to filter by (can be used multiple times, e.g., -p Alice -p Bob). Will default to 'All'."
-    )
+    add_common_arguments(parser_course, course_required=True, layout_required=True)
     parser_course.add_argument(
         "-o", "--output",
         type=str,
@@ -422,71 +370,24 @@ def main():
         action="store_true",
         help="Include par reference in plot."
     )
-    parser_course.add_argument(
-        "--after",
-        type=valid_date,
-        default=None,
-        help="Only include data after this date (inclusive). Format: YYYY-MM-DD."
-    )
-    parser_course.add_argument(
-        "--before",
-        type=valid_date,
-        default=None,
-        help="Only include data before this date (inclusive). Format: YYYY-MM-DD."
-    )
 
     # Basic stats subparser
     parser_basic_stats = subparsers.add_parser("basic-stats", help="Get some basic stats")
-    parser_basic_stats.add_argument(
-        "-d", "--csv-dir",
-        type=str,
-        required=True,
-        help="Path to the directory containing UDisc CSV files."
-    )
-    parser_basic_stats.add_argument(
-        "-c", "--course",
-        type=str,
-        default="All",
-        help="Course name to filter by. Will default to 'All'."
-    )
-    parser_basic_stats.add_argument(
-        "-l", "--layout",
-        type=str,
-        default="All",
-        help="Layout name to filter by. Will default to 'All'."
-    )
-    parser_basic_stats.add_argument(
-        "-p", "--player",
-        action="append",
-        default=None,
-        help="Player name(s) to filter by (can be used multiple times, e.g., -p Alice -p Bob). Will default to 'All'."
-    )
-    parser_basic_stats.add_argument(
-        "--after",
-        type=valid_date,
-        default=None,
-        help="Only include data after this date (inclusive). Format: YYYY-MM-DD."
-    )
-    parser_basic_stats.add_argument(
-        "--before",
-        type=valid_date,
-        default=None,
-        help="Only include data before this date (inclusive). Format: YYYY-MM-DD."
-    )
+    add_common_arguments(parser_basic_stats)
 
     args = parser.parse_args()
     
     # Needs to be set to ["All"] if not set
     args.players = args.player if args.player is not None else ["All"]
 
-    if args.command == "score-distribution":
-        score_distribution(args)
-    elif args.command == "performance-over-time":
-        performance_over_time(args)
-    elif args.command == "hole-distribution":
-        hole_distribution(args)
-    elif args.command == "basic-stats":
-        basic_stats(args)
+    command_handlers = {
+        "score-distribution": score_distribution,
+        "performance-over-time": performance_over_time,
+        "hole-distribution": hole_distribution,
+        "basic-stats": basic_stats,
+    }
+    
+    command_handlers[args.command](args)
 
 if __name__ == "__main__":
     main()
