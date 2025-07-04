@@ -177,7 +177,7 @@ def plot_distribution(df, output_path):
         plt.savefig(output_path, dpi=100)
     plt.show()
 
-def plot_performance(df, par_df, players, stat, output_path, plot_par, x_axis_mode):
+def plot_performance(df, par_df, players, stat, output_path, hide_par, x_axis_mode):
     sns.set_theme(style="ticks", palette="pastel")
 
     if players[0] == "All":
@@ -203,7 +203,7 @@ def plot_performance(df, par_df, players, stat, output_path, plot_par, x_axis_mo
         # Plot stat for player
         sns.lineplot(data=player_df, x=x_col, y=stat, label=player, marker=marker, alpha=0.8)
     
-    if plot_par:
+    if not hide_par:
         plt.axhline(y=par_df.loc[0, stat], label='Par', linewidth=2.5, alpha=0.8, color="green", linestyle="--")
     
     x_axis_label = "Round number" if x_axis_mode == "round" else "Date"
@@ -213,7 +213,7 @@ def plot_performance(df, par_df, players, stat, output_path, plot_par, x_axis_mo
         plt.savefig(output_path, dpi=100)
     plt.show()
 
-def plot_hole_distribution(df, par_df, output_path, plot_par):
+def plot_hole_distribution(df, par_df, output_path, hide_par):
     sns.set_theme(style="ticks", palette="pastel")
 
     # Plot score
@@ -223,7 +223,7 @@ def plot_hole_distribution(df, par_df, output_path, plot_par):
     sns.stripplot(data=df, x="Hole", y="Score", size=4, color=".3")
     
     # Plot par
-    if plot_par:
+    if not hide_par:
         sns.scatterplot(x="Hole", y="Score", data=par_df, label="Par", zorder=5, s=100, linewidth=2.5, facecolors='none', edgecolor="green", alpha=0.7)
 
     plt.ylim(bottom=0)
@@ -257,7 +257,7 @@ def performance_over_time(args):
     df = filter_df(df, args.course, args.layout, args.after, args.before, players=args.players, stat=args.stat)
     par_df = filter_df(par_df, args.course, args.layout, stat=args.stat)
 
-    plot_performance(df, par_df, args.players, args.stat, args.output, args.plot_par, args.x_axis_mode)
+    plot_performance(df, par_df, args.players, args.stat, args.output, args.hide_par, args.x_axis_mode)
 
 def hole_distribution(args):
     df, par_df = generate_dataframe(args.csv_dir)
@@ -265,7 +265,7 @@ def hole_distribution(args):
     df = filter_df(df, args.course, args.layout, args.after, args.before, players=args.players)
     par_df = filter_df(par_df, args.course, args.layout)
 
-    plot_hole_distribution(df, par_df, args.output, args.plot_par)
+    plot_hole_distribution(df, par_df, args.output, args.hide_par)
 
 def basic_stats(args):
     df, _ = generate_dataframe(args.csv_dir)
@@ -345,9 +345,9 @@ def main():
         help="Path to save the plot image (e.g., 'plot.png'). If not provided, the plot is only shown."
     )
     parser_perf.add_argument(
-        "-r", "--plot-par",
+        "--hide-par",
         action="store_true",
-        help="Include par reference in plot."
+        help="Hide par reference in plot."
     )
     parser_perf.add_argument(
         "--x-axis-mode",
@@ -366,9 +366,9 @@ def main():
         help="Path to save the plot image (e.g., 'plot.png'). If not provided, the plot is only shown."
     )
     parser_course.add_argument(
-        "-r", "--plot-par",
+        "--hide-par",
         action="store_true",
-        help="Include par reference in plot."
+        help="Hide par reference in plot."
     )
 
     # Basic stats subparser

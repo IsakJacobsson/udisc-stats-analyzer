@@ -59,7 +59,7 @@ Here is an example use for course "Vipan" and layout "Main" for all players.
 Remember to always specify the directory containing your UDisc CSV files:
 
 ```
-python udisc_analysis.py hole-distribution --csv-dir score_cards --course Vipan --layout Main --plot-par
+python udisc_analysis.py hole-distribution --csv-dir score_cards --course Vipan --layout Main
 ```
 
 Which generates a plot, such as:
@@ -79,7 +79,7 @@ Which generates a plot, such as:
   YYYY-MM-DD.
 - `-o/--output` - Path to save the plot image (e.g., 'plot.png'). If not
   provided, the plot is only shown.
-- `-r/--plot-par` - Include par reference in plot.
+- `--hide-par` - Hide par reference in plot.
 
 ### Performance Over Time
 
@@ -95,7 +95,7 @@ record of the selecet stat will be plotted. When not specifiying a stat, the
 subcommand will generate a plot for the total round score. Here is an example:
 
 ```
-python udisc_analysis.py performance-over-time --csv-dir score_cards --course Vipan --layout Main --plot-par
+python udisc_analysis.py performance-over-time --csv-dir score_cards --course Vipan --layout Main
 ```
 
 Which generates a plot, such as:
@@ -115,10 +115,10 @@ Which generates a plot, such as:
   YYYY-MM-DD.
 - `-o/--output` - Path to save the plot image (e.g., 'plot.png'). If not
   provided, the plot is only shown.
-- `-r/--plot-par` - Include par reference in plot.
 - `-s/--stat` - What stat to plot, e.g., Total, Hole1, Hole18.
 - `--x-axis-mode` - Choose 'date' to plot against actual dates or 'round' to
   plot by round number.
+- `--hide-par` - Hide par reference in plot.
 
 ### Score Distribution
 
