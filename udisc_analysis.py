@@ -128,7 +128,7 @@ def filter_df(df, course_name, layout_name, after_date=None, before_date=None, p
     
     return df
 
-def plot_distribution(df, players, course_name, layout_name, output_path):
+def plot_distribution(df, output_path):
     score_counts = df["ScoreType"].value_counts()
 
     # Define the desired order
@@ -172,12 +172,12 @@ def plot_distribution(df, players, course_name, layout_name, output_path):
         colors=colors
     )
     
-    plt.title(f"Distribution for course: {course_name}, layout: {layout_name}, player(s): {players}")
+    plt.title("Score Distribution")
     if output_path:
         plt.savefig(output_path, dpi=100)
     plt.show()
 
-def plot_performance(df, par_df, course_name, layout_name, players, stat, output_path, plot_par, x_axis_mode):
+def plot_performance(df, par_df, players, stat, output_path, plot_par, x_axis_mode):
     sns.set_theme(style="ticks", palette="pastel")
 
     if players[0] == "All":
@@ -208,12 +208,12 @@ def plot_performance(df, par_df, course_name, layout_name, players, stat, output
     
     x_axis_label = "Round number" if x_axis_mode == "round" else "Date"
     plt.xlabel(x_axis_label)
-    plt.title(f"{stat} over {'rounds' if x_axis_mode == 'round' else 'time'} for {course_name}, {layout_name}")
+    plt.title(f"Performance Over {'Rounds' if x_axis_mode == 'round' else 'Time'}")
     if output_path:
         plt.savefig(output_path, dpi=100)
     plt.show()
 
-def plot_hole_distribution(df, par_df, course_name, layout_name, players, output_path, plot_par):
+def plot_hole_distribution(df, par_df, output_path, plot_par):
     sns.set_theme(style="ticks", palette="pastel")
 
     # Plot score
@@ -229,7 +229,7 @@ def plot_hole_distribution(df, par_df, course_name, layout_name, players, output
     plt.ylim(bottom=0)
     y_max = int(df["Score"].max()) + 1
     plt.yticks(list(range(0, y_max + 1)))
-    plt.title(f"Boxplot for {course_name}, {layout_name}, player(s): {players}")
+    plt.title(f"Distribution per Hole")
     plt.grid(True)
 
     if output_path:
@@ -249,7 +249,7 @@ def score_distribution(args):
     df = filter_df(df, args.course, args.layout, args.after, args.before, args.players)
     df = convert_to_score_distribution(df, par_df)
 
-    plot_distribution(df, args.players, args.course, args.layout, args.output)
+    plot_distribution(df, args.output)
 
 def performance_over_time(args):
     df, par_df = generate_dataframe(args.csv_dir, mode="round")
@@ -257,7 +257,7 @@ def performance_over_time(args):
     df = filter_df(df, args.course, args.layout, args.after, args.before, players=args.players, stat=args.stat)
     par_df = filter_df(par_df, args.course, args.layout, stat=args.stat)
 
-    plot_performance(df, par_df, args.course, args.layout, args.players, args.stat, args.output, args.plot_par, args.x_axis_mode)
+    plot_performance(df, par_df, args.players, args.stat, args.output, args.plot_par, args.x_axis_mode)
 
 def hole_distribution(args):
     df, par_df = generate_dataframe(args.csv_dir)
@@ -265,7 +265,7 @@ def hole_distribution(args):
     df = filter_df(df, args.course, args.layout, args.after, args.before, players=args.players)
     par_df = filter_df(par_df, args.course, args.layout)
 
-    plot_hole_distribution(df, par_df, args.course, args.layout, args.players, args.output, args.plot_par)
+    plot_hole_distribution(df, par_df, args.output, args.plot_par)
 
 def basic_stats(args):
     df, _ = generate_dataframe(args.csv_dir)
@@ -386,7 +386,7 @@ def main():
         "hole-distribution": hole_distribution,
         "basic-stats": basic_stats,
     }
-    
+
     command_handlers[args.command](args)
 
 if __name__ == "__main__":
