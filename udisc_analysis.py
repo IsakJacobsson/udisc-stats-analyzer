@@ -1,10 +1,25 @@
 import argparse
 from pathlib import Path
 import itertools
+from enum import Enum
 
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
+
+class Arg(Enum):
+    CSV_DIR         = 1
+    COURSE          = 2
+    LAYOUT          = 3
+    PLAYERS         = 4
+    AFTER           = 5
+    BEFORE          = 6
+    OUTPUT          = 7
+    STAT            = 8
+    HIDE_PAR        = 9
+    X_AXIS_MODE     = 10
+    COURSE_REQUIRED = 11
+    LAYOUT_REQUIRED = 12
 
 def valid_date(s):
     try:
@@ -274,45 +289,81 @@ def basic_stats(args):
 
     print_basic_stats(df)
 
-def add_common_arguments(parser, course_required=False, layout_required=False):
-    parser.add_argument(
-        "-d", "--csv-dir",
-        type=str,
-        required=True,
-        help="Path to the directory containing UDisc CSV files."
-    )
-    parser.add_argument(
-        "-c", "--course",
-        type=str,
-        required=course_required,
-        default=None if course_required else "All",
-        help="Course name to filter by." + (" Required." if course_required else " Will default to 'All'.")
-    )
-    parser.add_argument(
-        "-l", "--layout",
-        type=str,
-        required=layout_required,
-        default=None if layout_required else "All",
-        help="Layout name to filter by." + (" Required." if layout_required else " Will default to 'All'.")
-    )
-    parser.add_argument(
-        "-p", "--player",
-        action="append",
-        default=None,
-        help="Player name(s) to filter by (e.g., -p Alice -p Bob). Defaults to 'All'."
-    )
-    parser.add_argument(
-        "--after",
-        type=valid_date,
-        default=None,
-        help="Only include data after this date (inclusive). Format: YYYY-MM-DD."
-    )
-    parser.add_argument(
-        "--before",
-        type=valid_date,
-        default=None,
-        help="Only include data before this date (inclusive). Format: YYYY-MM-DD."
-    )
+def add_arguments(parser, *args):
+    course_required = Arg.COURSE_REQUIRED in args
+    layout_required = Arg.LAYOUT_REQUIRED in args
+
+    if Arg.CSV_DIR in args:
+        parser.add_argument(
+            "-d", "--csv-dir",
+            type=str,
+            required=True,
+            help="Path to the directory containing UDisc CSV files."
+        )
+    if Arg.COURSE in args:
+        parser.add_argument(
+            "-c", "--course",
+            type=str,
+            required=course_required,
+            default=None if course_required else "All",
+            help="Course name to filter by." + (" Required." if course_required else " Will default to 'All'.")
+        )
+    if Arg.LAYOUT in args:
+        parser.add_argument(
+            "-l", "--layout",
+            type=str,
+            required=layout_required,
+            default=None if layout_required else "All",
+            help="Layout name to filter by." + (" Required." if layout_required else " Will default to 'All'.")
+        )
+    if Arg.PLAYERS in args:
+        parser.add_argument(
+            "-p", "--player",
+            action="append",
+            default=None,
+            help="Player name(s) to filter by (e.g., -p Alice -p Bob). Defaults to 'All'."
+        )
+    if Arg.AFTER in args:
+        parser.add_argument(
+            "--after",
+            type=valid_date,
+            default=None,
+            help="Only include data after this date (inclusive). Format: YYYY-MM-DD."
+        )
+    if Arg.BEFORE in args:
+        parser.add_argument(
+            "--before",
+            type=valid_date,
+            default=None,
+            help="Only include data before this date (inclusive). Format: YYYY-MM-DD."
+        )
+    if Arg.OUTPUT in args:
+        parser.add_argument(
+            "-o", "--output",
+            type=str,
+            default=None,
+            help="Path to save the plot image (e.g., 'plot.png'). If not provided, the plot is only shown."
+        )
+    if Arg.STAT in args:
+        parser.add_argument(
+            "-s", "--stat",
+            type=str,
+            default="Total",
+            help="What stat to plot, e.g., Total, Hole1, Hole18."
+        )
+    if Arg.HIDE_PAR in args:
+        parser.add_argument(
+            "--hide-par",
+            action="store_true",
+            help="Hide par reference in plot."
+        )
+    if Arg.X_AXIS_MODE in args:
+        parser.add_argument(
+            "--x-axis-mode",
+            choices=["round", "date"],
+            default='round',
+            help="Choose 'date' to plot against actual dates or 'round' to plot by round number."
+        )
     return parser
 
 def main():
@@ -320,60 +371,20 @@ def main():
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     # Score distribution subparser
-    parser_score = subparsers.add_parser("score-distribution", help="Plot score type distribution")
-    add_common_arguments(parser_score)
-    parser_score.add_argument(
-        "-o", "--output",
-        type=str,
-        default=None,
-        help="Path to save the plot image (e.g., 'plot.png'). If not provided, the plot is only shown."
-    )
+    parser_score = subparsers.add_parser("score-distribution", help="Plot score type distribution.")
+    add_arguments(parser_score, Arg.CSV_DIR, Arg.COURSE, Arg.LAYOUT, Arg.PLAYERS, Arg.AFTER, Arg.BEFORE, Arg.OUTPUT)
 
     # Performance over time subparser
-    parser_perf = subparsers.add_parser("performance-over-time", help="Plot performance over time")
-    add_common_arguments(parser_perf, course_required=True, layout_required=True)
-    parser_perf.add_argument(
-        "-s", "--stat",
-        type=str,
-        default="Total",
-        help="What stat to plot, e.g., Total, Hole1, Hole18."
-    )
-    parser_perf.add_argument(
-        "-o", "--output",
-        type=str,
-        default=None,
-        help="Path to save the plot image (e.g., 'plot.png'). If not provided, the plot is only shown."
-    )
-    parser_perf.add_argument(
-        "--hide-par",
-        action="store_true",
-        help="Hide par reference in plot."
-    )
-    parser_perf.add_argument(
-        "--x-axis-mode",
-        choices=["round", "date"],
-        default='round',
-        help="Choose 'date' to plot against actual dates or 'round' to plot by round number."
-    )
+    parser_perf = subparsers.add_parser("performance-over-time", help="Plot performance over time.")
+    add_arguments(parser_perf, Arg.CSV_DIR, Arg.COURSE, Arg.COURSE_REQUIRED, Arg.LAYOUT, Arg.LAYOUT_REQUIRED, Arg.PLAYERS, Arg.AFTER, Arg.BEFORE, Arg.OUTPUT, Arg.STAT, Arg.HIDE_PAR, Arg.X_AXIS_MODE)
 
     # Hole distribution subparser
-    parser_course = subparsers.add_parser("hole-distribution", help="Analyze scores per course")
-    add_common_arguments(parser_course, course_required=True, layout_required=True)
-    parser_course.add_argument(
-        "-o", "--output",
-        type=str,
-        default=None,
-        help="Path to save the plot image (e.g., 'plot.png'). If not provided, the plot is only shown."
-    )
-    parser_course.add_argument(
-        "--hide-par",
-        action="store_true",
-        help="Hide par reference in plot."
-    )
+    parser_course = subparsers.add_parser("hole-distribution", help="Analyze scores per course.")
+    add_arguments(parser_course, Arg.CSV_DIR, Arg.COURSE, Arg.COURSE_REQUIRED, Arg.LAYOUT, Arg.LAYOUT_REQUIRED, Arg.PLAYERS, Arg.AFTER, Arg.BEFORE, Arg.OUTPUT, Arg.HIDE_PAR)
 
     # Basic stats subparser
-    parser_basic_stats = subparsers.add_parser("basic-stats", help="Get some basic stats")
-    add_common_arguments(parser_basic_stats)
+    parser_basic_stats = subparsers.add_parser("basic-stats", help="Get some basic stats.")
+    add_arguments(parser_basic_stats, Arg.CSV_DIR, Arg.COURSE, Arg.LAYOUT, Arg.PLAYERS, Arg.AFTER, Arg.BEFORE)
 
     args = parser.parse_args()
     
@@ -386,7 +397,7 @@ def main():
         "hole-distribution": hole_distribution,
         "basic-stats": basic_stats,
     }
-
+    
     command_handlers[args.command](args)
 
 if __name__ == "__main__":
