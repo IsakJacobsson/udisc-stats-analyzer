@@ -81,11 +81,11 @@ Which generates a plot, such as:
   provided, the plot is only shown.
 - `--hide-par` - Hide par reference in plot.
 
-### Performance Over Time
+### Performance Curve
 
-Plot performace over time with the `performance-over-time` subcommand.
+Plot performance curve with the `performance-curve` subcommand.
 
-This subcommand will generate a lineplot with the score over time for a specific
+This subcommand will generate a lineplot of the score per round for a specific
 stat, such as total round score or a specific hole. It is possible to choose
 what player(s) to draw lines for.
 
@@ -95,12 +95,12 @@ record of the selecet stat will be plotted. When not specifiying a stat, the
 subcommand will generate a plot for the total round score. Here is an example:
 
 ```
-python udisc_analysis.py performance-over-time --csv-dir score_cards --course Vipan --layout Main
+python udisc_analysis.py performance-curve --csv-dir score_cards --course Vipan --layout Main
 ```
 
 Which generates a plot, such as:
 
-![perf-over-time-demo](docs/perf-over-time-demo.png)
+![performance-curve-demo](docs/performance-curve-demo.png)
 
 #### Arguments
 

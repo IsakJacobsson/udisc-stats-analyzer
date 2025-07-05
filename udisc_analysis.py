@@ -192,7 +192,7 @@ def plot_distribution(df, output_path):
         plt.savefig(output_path, dpi=100)
     plt.show()
 
-def plot_performance(df, par_df, players, stat, output_path, hide_par, x_axis_mode):
+def plot_performance_curve(df, par_df, players, stat, output_path, hide_par, x_axis_mode):
     sns.set_theme(style="ticks", palette="pastel")
 
     if players[0] == "All":
@@ -223,7 +223,7 @@ def plot_performance(df, par_df, players, stat, output_path, hide_par, x_axis_mo
     
     x_axis_label = "Round number" if x_axis_mode == "round" else "Date"
     plt.xlabel(x_axis_label)
-    plt.title(f"Performance Over {'Rounds' if x_axis_mode == 'round' else 'Time'}")
+    plt.title(f"Performance Curve")
     if output_path:
         plt.savefig(output_path, dpi=100)
     plt.show()
@@ -266,13 +266,13 @@ def score_distribution(args):
 
     plot_distribution(df, args.output)
 
-def performance_over_time(args):
+def performance_curve(args):
     df, par_df = generate_dataframe(args.csv_dir, mode="round")
 
     df = filter_df(df, args.course, args.layout, args.after, args.before, players=args.players, stat=args.stat)
     par_df = filter_df(par_df, args.course, args.layout, stat=args.stat)
 
-    plot_performance(df, par_df, args.players, args.stat, args.output, args.hide_par, args.x_axis_mode)
+    plot_performance_curve(df, par_df, args.players, args.stat, args.output, args.hide_par, args.x_axis_mode)
 
 def hole_distribution(args):
     df, par_df = generate_dataframe(args.csv_dir)
@@ -374,8 +374,8 @@ def main():
     parser_score = subparsers.add_parser("score-distribution", help="Plot score type distribution.")
     add_arguments(parser_score, Arg.CSV_DIR, Arg.COURSE, Arg.LAYOUT, Arg.PLAYERS, Arg.AFTER, Arg.BEFORE, Arg.OUTPUT)
 
-    # Performance over time subparser
-    parser_perf = subparsers.add_parser("performance-over-time", help="Plot performance over time.")
+    # Performance curve subparser
+    parser_perf = subparsers.add_parser("performance-curve", help="Plot performance curve.")
     add_arguments(parser_perf, Arg.CSV_DIR, Arg.COURSE, Arg.COURSE_REQUIRED, Arg.LAYOUT, Arg.LAYOUT_REQUIRED, Arg.PLAYERS, Arg.AFTER, Arg.BEFORE, Arg.OUTPUT, Arg.STAT, Arg.HIDE_PAR, Arg.X_AXIS_MODE)
 
     # Hole distribution subparser
@@ -393,7 +393,7 @@ def main():
 
     command_handlers = {
         "score-distribution": score_distribution,
-        "performance-over-time": performance_over_time,
+        "performance-curve": performance_curve,
         "hole-distribution": hole_distribution,
         "basic-stats": basic_stats,
     }
