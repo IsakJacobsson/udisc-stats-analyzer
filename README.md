@@ -5,9 +5,9 @@ score data exported from UDisc — the popular disc golf score tracking app. It
 processes player and course data to generate detailed statistics, helping disc
 golf enthusiasts gain insights into their gameplay and performance trends.
 
-This repository contains a Python script to plot different types of stats based
-on your UDisc golf games. Follow the [Setup](#setup) to instal the prerequisit
-Python packages and preparing your UDisc CSV files for analysis.
+This repository contains a Python script to generate different types of stats
+based on your UDisc golf games. Follow the [Setup](#setup) to install the
+prerequisit Python packages and preparing your UDisc CSV files for analysis.
 
 After completing the setup, continue to the [Analysis](#analysis) section to
 learn about the different analytics, and how to use them.
