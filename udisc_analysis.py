@@ -20,6 +20,7 @@ class Arg(Enum):
     X_AXIS_MODE     = 10
     COURSE_REQUIRED = 11
     LAYOUT_REQUIRED = 12
+    HIDE_AVG        = 13
 
 def valid_date(s):
     try:
@@ -192,7 +193,7 @@ def plot_distribution(df, output_path):
         plt.savefig(output_path, dpi=100)
     plt.show()
 
-def plot_performance_curve(df, par_df, players, stat, output_path, hide_par, x_axis_mode):
+def plot_performance_curve(df, par_df, players, stat, output_path, hide_par, x_axis_mode, hide_avg):
     sns.set_theme(style="ticks", palette="pastel")
 
     if players[0] == "All":
@@ -216,7 +217,13 @@ def plot_performance_curve(df, par_df, players, stat, output_path, hide_par, x_a
         marker = next(marker_cycle)
 
         # Plot stat for player
-        sns.lineplot(data=player_df, x=x_col, y=stat, label=player, marker=marker, alpha=0.8)
+        line = sns.lineplot(data=player_df, x=x_col, y=stat, label=player, marker=marker, alpha=0.8)
+
+        # Plot a line for the average
+        if not hide_avg:
+            player_average = player_df[stat].mean()
+            player_color = line.lines[-1].get_color()  # To get same color as the lineplot above
+            plt.axhline(y=player_average, linewidth=0.8, alpha=0.8, color=player_color, linestyle="--")
     
     if not hide_par:
         plt.axhline(y=par_df.loc[0, stat], label='Par', linewidth=2.5, alpha=0.8, color="green", linestyle="--")
@@ -224,6 +231,7 @@ def plot_performance_curve(df, par_df, players, stat, output_path, hide_par, x_a
     x_axis_label = "Round number" if x_axis_mode == "round" else "Date"
     plt.xlabel(x_axis_label)
     plt.title(f"Performance Curve")
+    plt.legend()
     if output_path:
         plt.savefig(output_path, dpi=100)
     plt.show()
@@ -291,7 +299,7 @@ def performance_curve(args):
     df = filter_df(df, args.course, args.layout, args.after, args.before, players=args.players, stat=args.stat)
     par_df = filter_df(par_df, args.course, args.layout, stat=args.stat)
 
-    plot_performance_curve(df, par_df, args.players, args.stat, args.output, args.hide_par, args.x_axis_mode)
+    plot_performance_curve(df, par_df, args.players, args.stat, args.output, args.hide_par, args.x_axis_mode, args.hide_avg)
 
 def hole_distribution(args):
     df, par_df = generate_dataframe(args.csv_dir)
@@ -385,6 +393,12 @@ def add_arguments(parser, *args):
             default='round',
             help="Choose 'date' to plot against actual dates or 'round' to plot by round number."
         )
+    if Arg.HIDE_AVG in args:
+        parser.add_argument(
+            "--hide-avg",
+            action="store_true",
+            help="Hide average in plot."
+        )
     return parser
 
 def main():
@@ -397,7 +411,7 @@ def main():
 
     # Performance curve subparser
     parser_perf = subparsers.add_parser("performance-curve", help="Plot performance curve.")
-    add_arguments(parser_perf, Arg.CSV_DIR, Arg.COURSE, Arg.COURSE_REQUIRED, Arg.LAYOUT, Arg.LAYOUT_REQUIRED, Arg.PLAYERS, Arg.AFTER, Arg.BEFORE, Arg.OUTPUT, Arg.STAT, Arg.HIDE_PAR, Arg.X_AXIS_MODE)
+    add_arguments(parser_perf, Arg.CSV_DIR, Arg.COURSE, Arg.COURSE_REQUIRED, Arg.LAYOUT, Arg.LAYOUT_REQUIRED, Arg.PLAYERS, Arg.AFTER, Arg.BEFORE, Arg.OUTPUT, Arg.STAT, Arg.HIDE_PAR, Arg.X_AXIS_MODE, Arg.HIDE_AVG)
 
     # Hole distribution subparser
     parser_course = subparsers.add_parser("hole-distribution", help="Analyze scores per course.")

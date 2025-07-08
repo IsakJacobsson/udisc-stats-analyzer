@@ -119,6 +119,7 @@ Which generates a plot, such as:
 - `--x-axis-mode` - Choose 'date' to plot against actual dates or 'round' to
   plot by round number.
 - `--hide-par` - Hide par reference in plot.
+- `--hide-avg` - Hide average in plot.
 
 ### Score Distribution
 
