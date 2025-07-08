@@ -251,12 +251,31 @@ def plot_hole_distribution(df, par_df, output_path, hide_par):
         plt.savefig(output_path, dpi=100)
     plt.show()
 
-def print_basic_stats(df):
+def print_basic_stats(df_holes, df_rounds):
     print("----- Basic overview -----")
-    num_rounds = len(df[['PlayerName', 'StartDate']].drop_duplicates())
-    print(f"Rounds: {num_rounds}")
-    print(f"Holes: {len(df)}")
-    print(f"Throws: {df['Score'].sum()}")
+    df_finished_rounds = df_rounds[df_rounds['Total'] != 0]
+    print(f"Rounds: {len(df_rounds)}")
+    print(f"Finished rounds: {len(df_finished_rounds)}")
+    print(f"Best round: {df_finished_rounds['Total'].min()}p")
+    print(f"Worst round: {df_finished_rounds['Total'].max()}p")
+    print(f"Average total: {df_finished_rounds['Total'].mean():.2f}p")
+    print(f"Holes: {len(df_holes)}")
+    print(f"Throws: {df_holes['Score'].sum()}")
+
+    players = df_rounds["PlayerName"].unique()
+    for player in players:
+        print()
+        print(f"{player}:")
+        df_rounds_player          = df_rounds[df_rounds["PlayerName"] == player]
+        df_finished_rounds_player = df_finished_rounds[df_finished_rounds["PlayerName"] == player]
+        df_holes_player           = df_holes[df_holes["PlayerName"] == player]
+        print(f"    Rounds: {len(df_rounds_player)}")
+        print(f"    Finished rounds: {len(df_finished_rounds_player)}")
+        print(f"    Best round: {df_finished_rounds_player['Total'].min()}p")
+        print(f"    Worst round: {df_finished_rounds_player['Total'].max()}p")
+        print(f"    Average total: {df_finished_rounds_player['Total'].mean():.2f}p")
+        print(f"    Holes: {len(df_holes_player)}")
+        print(f"    Throws: {df_holes_player['Score'].sum()}")
 
 def score_distribution(args):
     df, par_df = generate_dataframe(args.csv_dir)
@@ -283,11 +302,13 @@ def hole_distribution(args):
     plot_hole_distribution(df, par_df, args.output, args.hide_par)
 
 def basic_stats(args):
-    df, _ = generate_dataframe(args.csv_dir)
+    df_holes, _ = generate_dataframe(args.csv_dir)
+    df_rounds, _ = generate_dataframe(args.csv_dir, mode="round")
 
-    df = filter_df(df, args.course, args.layout, args.after, args.before, players=args.players)
+    df_holes = filter_df(df_holes, args.course, args.layout, args.after, args.before, players=args.players)
+    df_rounds = filter_df(df_rounds, args.course, args.layout, args.after, args.before, players=args.players)
 
-    print_basic_stats(df)
+    print_basic_stats(df_holes, df_rounds)
 
 def add_arguments(parser, *args):
     course_required = Arg.COURSE_REQUIRED in args
