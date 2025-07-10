@@ -161,13 +161,14 @@ Which prints:
 
 ```
 ----- Basic overview -----
-Rounds: 40
-Finished rounds: 27
+Rounds: 41
+Finished rounds: 28
 Best round: 28p
 Worst round: 42p
-Average total: 36.52p
-Holes: 284
-Throws: 1164
+Average total: 36.46p
+Score change per round played: -0.04p
+Holes: 293
+Throws: 1199
 
 Jon "Klirr i Kassan" Runeke:
     Rounds: 9
@@ -175,17 +176,19 @@ Jon "Klirr i Kassan" Runeke:
     Best round: 28p
     Worst round: 39p
     Average total: 35.00p
+    Score change per round played: -1.31p
     Holes: 63
     Throws: 248
 
 Isak "Bush Walker" Jacobsson:
-    Rounds: 17
-    Finished rounds: 11
+    Rounds: 18
+    Finished rounds: 12
     Best round: 33p
     Worst round: 42p
-    Average total: 36.09p
-    Holes: 122
-    Throws: 502
+    Average total: 36.00p
+    Score change per round played: 0.19p
+    Holes: 131
+    Throws: 537
 
 ...
 ```

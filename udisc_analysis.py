@@ -2,6 +2,7 @@ import argparse
 from pathlib import Path
 import itertools
 from enum import Enum
+import numpy as np
 
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -260,6 +261,9 @@ def plot_hole_distribution(df, par_df, output_path, hide_par):
     plt.show()
 
 def print_basic_stats(df_holes, df_rounds):
+    # Needs to be sorted to be able to calculate improvement
+    df_rounds = df_rounds.sort_values(by="StartDate")
+
     print("----- Basic overview -----")
     df_finished_rounds = df_rounds[df_rounds['Total'] != 0]
     print(f"Rounds: {len(df_rounds)}")
@@ -267,21 +271,38 @@ def print_basic_stats(df_holes, df_rounds):
     print(f"Best round: {df_finished_rounds['Total'].min()}p")
     print(f"Worst round: {df_finished_rounds['Total'].max()}p")
     print(f"Average total: {df_finished_rounds['Total'].mean():.2f}p")
+
+    x = np.array(range(0, len(df_finished_rounds)))
+    improvement = 0
+    if len(x) != 1:
+        y = df_finished_rounds["Total"].to_numpy()
+        improvement = np.polyfit(x, y, deg=1)[0]
+
+    print(f"Score change per round played: {improvement:.2f}p")
     print(f"Holes: {len(df_holes)}")
     print(f"Throws: {df_holes['Score'].sum()}")
 
     players = df_rounds["PlayerName"].unique()
     for player in players:
-        print()
-        print(f"{player}:")
         df_rounds_player          = df_rounds[df_rounds["PlayerName"] == player]
         df_finished_rounds_player = df_finished_rounds[df_finished_rounds["PlayerName"] == player]
         df_holes_player           = df_holes[df_holes["PlayerName"] == player]
+        
+        print()
+        print(f"{player}:")
         print(f"    Rounds: {len(df_rounds_player)}")
         print(f"    Finished rounds: {len(df_finished_rounds_player)}")
         print(f"    Best round: {df_finished_rounds_player['Total'].min()}p")
         print(f"    Worst round: {df_finished_rounds_player['Total'].max()}p")
         print(f"    Average total: {df_finished_rounds_player['Total'].mean():.2f}p")
+
+        x = np.array(range(0, len(df_finished_rounds_player)))
+        improvement = 0
+        if len(x) != 1:
+            y = df_finished_rounds_player["Total"].to_numpy()
+            improvement = np.polyfit(x, y, deg=1)[0]
+
+        print(f"    Score change per round played: {improvement:.2f}p")
         print(f"    Holes: {len(df_holes_player)}")
         print(f"    Throws: {df_holes_player['Score'].sum()}")
 
