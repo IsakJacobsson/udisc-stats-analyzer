@@ -418,7 +418,7 @@ def add_arguments(parser, *args):
         parser.add_argument(
             "--hide-avg",
             action="store_true",
-            help="Hide average in plot."
+            help="Hide average lines in plot."
         )
     return parser
 
