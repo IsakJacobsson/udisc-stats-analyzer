@@ -227,7 +227,7 @@ def plot_performance_curve(df, par_df, players, stat, output_path, hide_par, x_a
             plt.axhline(y=player_average, linewidth=0.8, alpha=0.8, color=player_color, linestyle="--")
     
     if not hide_par:
-        plt.axhline(y=par_df.loc[0, stat], label='Par', linewidth=2.5, alpha=0.8, color="green", linestyle="--")
+        plt.axhline(y=par_df.iloc[0][stat], label='Par', linewidth=2.5, alpha=0.8, color="green", linestyle="--")
     
     x_axis_label = "Round number" if x_axis_mode == "round" else "Date"
     plt.xlabel(x_axis_label)
