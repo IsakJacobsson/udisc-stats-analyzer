@@ -121,6 +121,7 @@ Which generates a plot, such as:
   plot by round number.
 - `--hide-par` - Hide par reference in plot.
 - `--hide-avg` - Hide average lines in plot.
+- `--smoothness` - Apply rolling average on plot.
 
 ### Score Distribution
 

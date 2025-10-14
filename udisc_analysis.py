@@ -22,6 +22,7 @@ class Arg(Enum):
     COURSE_REQUIRED = 11
     LAYOUT_REQUIRED = 12
     HIDE_AVG        = 13
+    SMOOTHNESS      = 14
 
 def valid_date(s):
     try:
@@ -194,7 +195,7 @@ def plot_distribution(df, output_path):
         plt.savefig(output_path, dpi=100)
     plt.show()
 
-def plot_performance_curve(df, par_df, players, stat, output_path, hide_par, x_axis_mode, hide_avg):
+def plot_performance_curve(df, par_df, players, stat, output_path, hide_par, x_axis_mode, hide_avg, smoothness):
     sns.set_theme(style="ticks", palette="pastel")
 
     if players[0] == "All":
@@ -216,6 +217,10 @@ def plot_performance_curve(df, par_df, players, stat, output_path, hide_par, x_a
 
         x_col = "RoundIndex" if x_axis_mode == "round" else "StartDate"
         marker = next(marker_cycle)
+
+        # Add rolling window average
+        if smoothness > 1:
+            player_df[stat] = player_df[stat].rolling(window=smoothness, min_periods=1).mean()
 
         # Plot stat for player
         line = sns.lineplot(data=player_df, x=x_col, y=stat, label=player, marker=marker, alpha=0.8)
@@ -320,7 +325,7 @@ def performance_curve(args):
     df = filter_df(df, args.course, args.layout, args.after, args.before, players=args.players, stat=args.stat)
     par_df = filter_df(par_df, args.course, args.layout, stat=args.stat)
 
-    plot_performance_curve(df, par_df, args.players, args.stat, args.output, args.hide_par, args.x_axis_mode, args.hide_avg)
+    plot_performance_curve(df, par_df, args.players, args.stat, args.output, args.hide_par, args.x_axis_mode, args.hide_avg, args.smoothness)
 
 def hole_distribution(args):
     df, par_df = generate_dataframe(args.csv_dir)
@@ -420,6 +425,13 @@ def add_arguments(parser, *args):
             action="store_true",
             help="Hide average lines in plot."
         )
+    if Arg.SMOOTHNESS in args:
+        parser.add_argument(
+            "--smoothness",
+            type=int,
+            default=1,
+            help="Apply rolling average on plot."
+        )
     return parser
 
 def main():
@@ -432,7 +444,7 @@ def main():
 
     # Performance curve subparser
     parser_perf = subparsers.add_parser("performance-curve", help="Plot performance curve.")
-    add_arguments(parser_perf, Arg.CSV_DIR, Arg.COURSE, Arg.COURSE_REQUIRED, Arg.LAYOUT, Arg.LAYOUT_REQUIRED, Arg.PLAYERS, Arg.AFTER, Arg.BEFORE, Arg.OUTPUT, Arg.STAT, Arg.HIDE_PAR, Arg.X_AXIS_MODE, Arg.HIDE_AVG)
+    add_arguments(parser_perf, Arg.CSV_DIR, Arg.COURSE, Arg.COURSE_REQUIRED, Arg.LAYOUT, Arg.LAYOUT_REQUIRED, Arg.PLAYERS, Arg.AFTER, Arg.BEFORE, Arg.OUTPUT, Arg.STAT, Arg.HIDE_PAR, Arg.X_AXIS_MODE, Arg.HIDE_AVG, Arg.SMOOTHNESS)
 
     # Hole distribution subparser
     parser_course = subparsers.add_parser("hole-distribution", help="Analyze scores per course.")
