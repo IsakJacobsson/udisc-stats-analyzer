@@ -193,7 +193,8 @@ def plot_distribution(df, output_path):
     plt.title("Score Distribution")
     if output_path:
         plt.savefig(output_path, dpi=100)
-    plt.show()
+    else:
+        plt.show()
 
 def plot_performance_curve(df, par_df, players, stat, output_path, hide_par, x_axis_mode, hide_avg, smoothness):
     sns.set_theme(style="ticks", palette="pastel")
@@ -240,7 +241,8 @@ def plot_performance_curve(df, par_df, players, stat, output_path, hide_par, x_a
     plt.legend()
     if output_path:
         plt.savefig(output_path, dpi=100)
-    plt.show()
+    else:
+        plt.show()
 
 def plot_hole_distribution(df, par_df, output_path, hide_par):
     sns.set_theme(style="ticks", palette="pastel")
@@ -263,7 +265,8 @@ def plot_hole_distribution(df, par_df, output_path, hide_par):
 
     if output_path:
         plt.savefig(output_path, dpi=100)
-    plt.show()
+    else:
+        plt.show()
 
 def print_basic_stats(df_holes, df_rounds):
     # Needs to be sorted to be able to calculate improvement
@@ -397,7 +400,7 @@ def add_arguments(parser, *args):
             "-o", "--output",
             type=str,
             default=None,
-            help="Path to save the plot image (e.g., 'plot.png'). If not provided, the plot is only shown."
+            help="Path to save the plot image (e.g., 'plot.png'). When set, the plot is not shown."
         )
     if Arg.STAT in args:
         parser.add_argument(

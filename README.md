@@ -89,8 +89,8 @@ Which generates a plot, such as:
 
 #### Additional Arguments
 
-- `-o/--output` - Path to save the plot image (e.g., 'plot.png'). If not
-  provided, the plot is only shown.
+- `-o/--output` - Path to save the plot image (e.g., 'plot.png'). When set, the
+plot is not shown.
 - `--hide-par` - Hide par reference in plot.
 
 ### Performance Curve
@@ -114,8 +114,8 @@ Which generates a plot, such as:
 
 #### Additional Arguments
 
-- `-o/--output` - Path to save the plot image (e.g., 'plot.png'). If not
-  provided, the plot is only shown.
+- `-o/--output` - Path to save the plot image (e.g., 'plot.png'). When set, the
+plot is not shown.
 - `-s/--stat` - What stat to plot, e.g., Total, Hole1, Hole18.
 - `--x-axis-mode` - Choose 'date' to plot against actual dates or 'round' to
   plot by round number.
@@ -142,9 +142,8 @@ Which generates a plot, such as:
 
 #### Additional Arguments
 
-- `-o/--output` - Path to save the plot image (e.g., 'plot.png'). If not
-  provided, the plot is only shown.
-
+- `-o/--output` - Path to save the plot image (e.g., 'plot.png'). When set, the
+plot is not shown.
 ### Basic Stats
 
 Print basic stats with the `basic-stats` subcommand.
