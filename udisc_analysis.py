@@ -268,17 +268,18 @@ def plot_hole_distribution(df, par_df, output_path, hide_par):
     else:
         plt.show()
 
-def print_basic_stats(df_holes, df_rounds):
+def print_basic_stats(df_holes, df_rounds, output_file):
     # Needs to be sorted to be able to calculate improvement
     df_rounds = df_rounds.sort_values(by="StartDate")
 
-    print("----- Basic overview -----")
+    lines = []
+    lines.append("----- Basic overview -----")
     df_finished_rounds = df_rounds[df_rounds['Total'] != 0]
-    print(f"Rounds: {len(df_rounds)}")
-    print(f"Finished rounds: {len(df_finished_rounds)}")
-    print(f"Best round: {df_finished_rounds['Total'].min()}p")
-    print(f"Worst round: {df_finished_rounds['Total'].max()}p")
-    print(f"Average total: {df_finished_rounds['Total'].mean():.2f}p")
+    lines.append(f"Rounds: {len(df_rounds)}")
+    lines.append(f"Finished rounds: {len(df_finished_rounds)}")
+    lines.append(f"Best round: {df_finished_rounds['Total'].min()}p")
+    lines.append(f"Worst round: {df_finished_rounds['Total'].max()}p")
+    lines.append(f"Average total: {df_finished_rounds['Total'].mean():.2f}p")
 
     x = np.array(range(0, len(df_finished_rounds)))
     improvement = 0
@@ -286,9 +287,9 @@ def print_basic_stats(df_holes, df_rounds):
         y = df_finished_rounds["Total"].to_numpy()
         improvement = np.polyfit(x, y, deg=1)[0]
 
-    print(f"Score change per round played: {improvement:.2f}p")
-    print(f"Holes: {len(df_holes)}")
-    print(f"Throws: {df_holes['Score'].sum()}")
+    lines.append(f"Score change per round played: {improvement:.2f}p")
+    lines.append(f"Holes: {len(df_holes)}")
+    lines.append(f"Throws: {df_holes['Score'].sum()}")
 
     players = df_rounds["PlayerName"].unique()
     for player in players:
@@ -296,13 +297,13 @@ def print_basic_stats(df_holes, df_rounds):
         df_finished_rounds_player = df_finished_rounds[df_finished_rounds["PlayerName"] == player]
         df_holes_player           = df_holes[df_holes["PlayerName"] == player]
         
-        print()
-        print(f"{player}:")
-        print(f"    Rounds: {len(df_rounds_player)}")
-        print(f"    Finished rounds: {len(df_finished_rounds_player)}")
-        print(f"    Best round: {df_finished_rounds_player['Total'].min()}p")
-        print(f"    Worst round: {df_finished_rounds_player['Total'].max()}p")
-        print(f"    Average total: {df_finished_rounds_player['Total'].mean():.2f}p")
+        lines.append("")
+        lines.append(f"{player}:")
+        lines.append(f"    Rounds: {len(df_rounds_player)}")
+        lines.append(f"    Finished rounds: {len(df_finished_rounds_player)}")
+        lines.append(f"    Best round: {df_finished_rounds_player['Total'].min()}p")
+        lines.append(f"    Worst round: {df_finished_rounds_player['Total'].max()}p")
+        lines.append(f"    Average total: {df_finished_rounds_player['Total'].mean():.2f}p")
 
         x = np.array(range(0, len(df_finished_rounds_player)))
         improvement = 0
@@ -310,9 +311,19 @@ def print_basic_stats(df_holes, df_rounds):
             y = df_finished_rounds_player["Total"].to_numpy()
             improvement = np.polyfit(x, y, deg=1)[0]
 
-        print(f"    Score change per round played: {improvement:.2f}p")
-        print(f"    Holes: {len(df_holes_player)}")
-        print(f"    Throws: {df_holes_player['Score'].sum()}")
+        lines.append(f"    Score change per round played: {improvement:.2f}p")
+        lines.append(f"    Holes: {len(df_holes_player)}")
+        lines.append(f"    Throws: {df_holes_player['Score'].sum()}")
+
+    # Join everything into a single string
+    output_text = "\n".join(lines)
+
+    # Save to file if output is a string path, else print
+    if output_file:
+        with open(output_file, "w") as f:
+            f.write(output_text + "\n")
+    else:
+        print(output_text)
 
 def score_distribution(args):
     df, par_df = generate_dataframe(args.csv_dir)
@@ -345,7 +356,7 @@ def basic_stats(args):
     df_holes = filter_df(df_holes, args.course, args.layout, args.after, args.before, players=args.players)
     df_rounds = filter_df(df_rounds, args.course, args.layout, args.after, args.before, players=args.players)
 
-    print_basic_stats(df_holes, df_rounds)
+    print_basic_stats(df_holes, df_rounds, args.output)
 
 def add_arguments(parser, *args):
     course_required = Arg.COURSE_REQUIRED in args
@@ -400,7 +411,7 @@ def add_arguments(parser, *args):
             "-o", "--output",
             type=str,
             default=None,
-            help="Path to save the plot image (e.g., 'plot.png'). When set, the plot is not shown."
+            help="Path to save the resulting output to. When set, the result is suppressed."
         )
     if Arg.STAT in args:
         parser.add_argument(
@@ -455,7 +466,7 @@ def main():
 
     # Basic stats subparser
     parser_basic_stats = subparsers.add_parser("basic-stats", help="Get some basic stats.")
-    add_arguments(parser_basic_stats, Arg.CSV_DIR, Arg.COURSE, Arg.LAYOUT, Arg.PLAYERS, Arg.AFTER, Arg.BEFORE)
+    add_arguments(parser_basic_stats, Arg.CSV_DIR, Arg.COURSE, Arg.LAYOUT, Arg.PLAYERS, Arg.AFTER, Arg.BEFORE, Arg.OUTPUT)
 
     args = parser.parse_args()
     
