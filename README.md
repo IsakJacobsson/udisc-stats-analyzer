@@ -1,98 +1,118 @@
-# 🥏 UDisc Stats Analyzer
+# UDisc Stats Analyzer
 
-UDisc Stats Analyzer is a Python-based application that imports and analyzes CSV
-score data exported from UDisc — the popular disc golf score tracking app. It
-processes player and course data to generate detailed statistics, helping disc
-golf enthusiasts gain insights into their gameplay and performance trends. 📈
+UDisc Stats Analyzer is a small Python tool for digging into your disc golf
+rounds exported from UDisc. It reads the CSV scorecards you download from the
+app and turns them into useful stats and plots, so you can get a better feel for
+how you’re actually playing over time.
 
-This repository contains a Python script to generate different types of stats
-based on your UDisc golf games. Follow the [⚙️ Setup](#-setup) to install the
-prerequisit Python packages and preparing your UDisc CSV files for analysis.
+The goal of this project is pretty simple: make it easy to explore your own
+UDisc data without a lot of manual work. If you’re curious about score
+distributions, consistency, or how your performance changes round to round, this
+script can help.
 
-After completing the setup, continue to the [🔍 Analysis](#-analysis) section to
-learn about the different analytics, and how to use them.
+This repository contains a single Python script that can generate several
+different kinds of statistics from your UDisc games. Start with the setup
+instructions below to install the required Python packages and prepare your CSV
+files. After that, head to the analysis section to see what kinds of stats you
+can generate and how to run them.
 
-## ⚙️ Setup
+## Setup
 
-### 🧩 Prerequisites
+### Prerequisites
+You’ll need Python 3 installed. The required Python packages are listed in
+`requirements.txt`. It’s recommended to install them in a virtual environment so
+you don’t affect your system-wide Python setup.
 
-Set up your Python environment by installing the required Python packages. It is
-recommended to do this in a virtual environment in order to not pollute your
-default Python environment.
-
-Create and enter a virtual environment:
+Create and activate a virtual environment:
 
 ```
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-Now, install the required Python packages:
+Then install the dependencies:
 
 ```
 pip install -r requirements.txt
 ```
 
-✅ Your Python environment is now ready to use UDisc Stats Analyzer!
+### Prepare UDisc CSV Files
 
-### 📂 Prepare UDisc CSV Files
+Use the UDisc app to export the CSV files you want to analyze as CSV files.
 
-Use the UDisc app to download the CSV files you want to analyze.
+Create a directory for them (for example, `score_cards`) and move all exported
+CSV files into that directory. The script will read all CSV files found there.
 
-Move the CSV files into a separate directory named e.g., `score_cards`.
+## Analysis
 
-## 🔍 Analysis
+The `udisc_analysis.py` script supports several different types of analysis.
+Each type is selected using a subcommand.
 
-The udisc_analysis.py script lets you generate different kinds of analytics from
-your UDisc data. Use a subcommand to select the type of analysis you want to
-run.
+To see an overview of all available subcommands:
 
-Use `python udisc_analysis.py -h` to get info about the subcommands, and
-`python udisc_analysis.py <SUBCOMMMAND> -h` for more info about a specific
-subcommand.
+```
+python udisc_analysis.py -h
+```
 
-### ⛳ Hole Distribution
+To get detailed help for a specific subcommand:
 
-Plot the hole distribution with the `hole-distribution` subcommand:
+```
+python udisc_analysis.py <SUBCOMMAND> -h
+```
+
+Below are the supported analyses.
+
+### Hole Distribution
+
+Shows how your scores are distributed per hole for a given course and layout.
+
+Example:
 
 ```
 python udisc_analysis.py hole-distribution --csv-dir score_cards --course Vipan --layout Main
 ```
 
-Which generates a plot, such as:
+This generates a plot like the one below:
 
 ![hole-distribution-demo](docs/hole-distribution-demo.png)
 
-### 📉 Performance Curve
+### Performance Curve
 
-Plot performance curve with the `performance-curve` subcommand:
+Plots a performance curve to visualize how your scoring develops over time.
+
+Example:
 
 ```
 python udisc_analysis.py performance-curve --csv-dir score_cards --course Vipan --layout Main
 ```
 
-Which generates a plot, such as:
+Example output:
 
 ![performance-curve-demo](docs/performance-curve-demo.png)
 
-### 🎯 Score Distribution
+### Score Distribution
 
-Plot the score distribution with the `score-distribution` subcommand:
+Shows how often different total scores occur for a given course and layout.
+
+Example:
 
 ```
 python udisc_analysis.py score-distribution --course Vipan --layout Main --csv-dir score_cards
 ```
 
-Which generates a plot, such as:
+Example output:
 
 ![score-distribution-demo](docs/score-distribution-demo.png)
 
-### 🧮 Basic Stats
+### Basic Stats
 
-Print basic stats with the `basic-stats` subcommand:
+Prints a set of basic statistics, such as averages and simple aggregates,
+directly to the terminal.
+
+Example:
 
 ```
 python udisc_analysis.py basic-stats --csv-dir score_cards --course Vipan --layout Main
 ```
 
-See example output in [docs/basic-stats-demo.txt](./docs/basic-stats-demo.txt).
+An example of the output can be found in [docs/basic-stats-demo.txt](./docs/basic-stats-demo.txt).
