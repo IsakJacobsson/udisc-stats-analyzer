@@ -74,7 +74,7 @@ def generate_dataframe(csv_dir, mode="hole"):
             )
 
             # Extract hole number from "Hole1", "Hole2", ..
-            df["Hole"] = df["Hole"].str.extract("(\d+)").astype(int)
+            df["Hole"] = df["Hole"].str.extract(r"(\d+)").astype(int)
 
             # Filter out 0 or NaN scores (unfinished holes)
             df = df[df["Score"] > 0]
