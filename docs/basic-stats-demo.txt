@@ -1,42 +1,42 @@
 ----- Basic overview -----
-Rounds: 130
+Rounds: 133
 Finished rounds: 98
 Best round: 28p
 Worst round: 44p
 Average total: 35.23p
 Score change per round played: -0.04p
-Holes: 1001
-Throws: 3934
+Holes: 1022
+Throws: 4017
 
 Hampus Sjöholm:
-    Rounds: 12
+    Rounds: 13
     Finished rounds: 8
     Best round: 31p
     Worst round: 41p
     Average total: 35.88p
     Score change per round played: -0.27p
-    Holes: 87
-    Throws: 352
+    Holes: 94
+    Throws: 381
 
 Isak "Bush Walker" Jacobsson:
-    Rounds: 59
+    Rounds: 60
     Finished rounds: 45
     Best round: 28p
     Worst round: 42p
     Average total: 34.09p
     Score change per round played: -0.12p
-    Holes: 460
-    Throws: 1754
+    Holes: 467
+    Throws: 1779
 
 Jon "Klirr i Kassan" Runeke:
-    Rounds: 26
+    Rounds: 27
     Finished rounds: 19
     Best round: 28p
     Worst round: 39p
     Average total: 34.42p
     Score change per round played: -0.14p
-    Holes: 195
-    Throws: 751
+    Holes: 202
+    Throws: 780
 
 Peter:
     Rounds: 1
