@@ -397,7 +397,7 @@ def print_basic_stats(df_holes, df_rounds, output_file):
 
         x = np.array(range(0, len(df_finished_rounds_player)))
         improvement = 0
-        if len(x) != 1:
+        if len(x) > 1:
             y = df_finished_rounds_player["Total"].to_numpy()
             improvement = np.polyfit(x, y, deg=1)[0]
 
