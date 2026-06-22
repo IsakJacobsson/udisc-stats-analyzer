@@ -327,6 +327,17 @@ def plot_hole_distribution(df, par_df, output_path, hide_par):
     # Plot all individual attempts
     sns.stripplot(data=df, x="Hole", y="Score", size=4, color=".3")
 
+    # Plot average score per hole as a line
+    sns.pointplot(
+        x="Hole",
+        y="Score",
+        data=df,
+        estimator="mean",
+        errorbar=None,
+        color="red",
+        marker=""
+    )
+
     # Plot par
     if not hide_par:
         sns.scatterplot(
