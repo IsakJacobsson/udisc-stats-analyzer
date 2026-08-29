@@ -1,42 +1,62 @@
 ----- Basic overview -----
-Rounds: 149
-Finished rounds: 98
-Best round: 28p
-Worst round: 44p
-Average total: 35.23p
-Score change per round played: -0.04p
-Holes: 1122
-Throws: 4381
-
-Jon "Klirr i Kassan" Runeke:
-    Rounds: 30
-    Finished rounds: 19
-    Best round: 28p
-    Worst round: 39p
-    Average total: 34.42p
-    Score change per round played: -0.14p
-    Holes: 221
-    Throws: 855
+Rounds: 37
+Finished rounds: 29
+Best round: 27p
+Worst round: 46p
+Average total: 32.83p
+Score change per round played: -0.06p
+Holes: 313
+Throws: 1138
 
 Isak "Bush Walker" Jacobsson:
-    Rounds: 67
-    Finished rounds: 45
-    Best round: 28p
-    Worst round: 42p
-    Average total: 34.09p
-    Score change per round played: -0.12p
-    Holes: 510
-    Throws: 1925
+    Rounds: 15
+    Finished rounds: 12
+    Best round: 27p
+    Worst round: 39p
+    Average total: 30.33p
+    Score change per round played: -0.50p
+    Holes: 126
+    Throws: 420
 
-Hampus Sjöholm:
-    Rounds: 14
-    Finished rounds: 8
-    Best round: 31p
-    Worst round: 41p
-    Average total: 35.88p
-    Score change per round played: -0.27p
-    Holes: 101
-    Throws: 405
+Johanna:
+    Rounds: 8
+    Finished rounds: 7
+    Best round: 32p
+    Worst round: 38p
+    Average total: 35.00p
+    Score change per round played: -0.21p
+    Holes: 67
+    Throws: 261
+
+Hampus "GEOGEW" Sjöholm:
+    Rounds: 3
+    Finished rounds: 2
+    Best round: 34p
+    Worst round: 40p
+    Average total: 37.00p
+    Score change per round played: 6.00p
+    Holes: 26
+    Throws: 103
+
+Jon "Klirr i Kassan" Runeke:
+    Rounds: 7
+    Finished rounds: 5
+    Best round: 27p
+    Worst round: 35p
+    Average total: 31.00p
+    Score change per round played: -1.20p
+    Holes: 59
+    Throws: 203
+
+Filip "boissons":
+    Rounds: 2
+    Finished rounds: 1
+    Best round: 46p
+    Worst round: 46p
+    Average total: 46.00p
+    Score change per round played: 0.00p
+    Holes: 17
+    Throws: 83
 
 Gabriel:
     Rounds: 1
@@ -51,29 +71,9 @@ Gabriel:
 Peter:
     Rounds: 1
     Finished rounds: 1
-    Best round: 36p
-    Worst round: 36p
-    Average total: 36.00p
+    Best round: 33p
+    Worst round: 33p
+    Average total: 33.00p
     Score change per round played: 0.00p
     Holes: 9
-    Throws: 36
-
-Johanna:
-    Rounds: 35
-    Finished rounds: 24
-    Best round: 33p
-    Worst round: 44p
-    Average total: 37.79p
-    Score change per round played: -0.27p
-    Holes: 265
-    Throws: 1099
-
-Felix:
-    Rounds: 1
-    Finished rounds: 0
-    Best round: nanp
-    Worst round: nanp
-    Average total: nanp
-    Score change per round played: 0.00p
-    Holes: 7
-    Throws: 26
+    Throws: 33

@@ -9,10 +9,10 @@ text_file_ending="-demo.txt"
 
 for cmd in $image_commands; do
     output_file="$demo_dir/$cmd$image_file_ending"
-    python udisc_analysis.py $cmd --csv-dir score_cards --course Vipan --layout Main -o $output_file
+    python udisc_analysis.py $cmd --csv-dir score_cards --course Vipan --layout 'New Main 2026' -o $output_file
 done
 
 for cmd in $text_commands; do
     output_file="$demo_dir/$cmd$text_file_ending"
-    python udisc_analysis.py $cmd --csv-dir score_cards --course Vipan --layout Main -o $output_file
+    python udisc_analysis.py $cmd --csv-dir score_cards --course Vipan --layout 'New Main 2026' -o $output_file
 done

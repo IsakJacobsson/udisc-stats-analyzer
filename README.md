@@ -69,7 +69,7 @@ Shows how your scores are distributed per hole for a given course and layout.
 Example:
 
 ```
-python udisc_analysis.py hole-distribution --csv-dir score_cards --course Vipan --layout Main
+python udisc_analysis.py hole-distribution --csv-dir score_cards --course Vipan --layout 'New Main 2026'
 ```
 
 This generates a plot like the one below:
@@ -83,7 +83,7 @@ Plots a performance curve to visualize how your scoring develops over time.
 Example:
 
 ```
-python udisc_analysis.py performance-curve --csv-dir score_cards --course Vipan --layout Main
+python udisc_analysis.py performance-curve --csv-dir score_cards --course Vipan --layout 'New Main 2026'
 ```
 
 Example output:
@@ -97,7 +97,7 @@ Shows how often different total scores occur for a given course and layout.
 Example:
 
 ```
-python udisc_analysis.py score-distribution --course Vipan --layout Main --csv-dir score_cards
+python udisc_analysis.py score-distribution --course Vipan --layout 'New Main 2026' --csv-dir score_cards
 ```
 
 Example output:
@@ -112,7 +112,7 @@ directly to the terminal.
 Example:
 
 ```
-python udisc_analysis.py basic-stats --csv-dir score_cards --course Vipan --layout Main
+python udisc_analysis.py basic-stats --csv-dir score_cards --course Vipan --layout 'New Main 2026'
 ```
 
 An example of the output can be found in [docs/basic-stats-demo.txt](./docs/basic-stats-demo.txt).
