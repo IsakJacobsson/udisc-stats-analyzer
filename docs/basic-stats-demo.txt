@@ -1,22 +1,22 @@
 ----- Basic overview -----
-Rounds: 37
-Finished rounds: 29
+Rounds: 40
+Finished rounds: 32
 Best round: 27p
 Worst round: 46p
-Average total: 32.83p
-Score change per round played: -0.06p
-Holes: 313
-Throws: 1138
+Average total: 32.59p
+Score change per round played: -0.07p
+Holes: 340
+Throws: 1229
 
 Isak "Bush Walker" Jacobsson:
-    Rounds: 15
-    Finished rounds: 12
+    Rounds: 16
+    Finished rounds: 13
     Best round: 27p
     Worst round: 39p
-    Average total: 30.33p
+    Average total: 30.08p
     Score change per round played: -0.50p
-    Holes: 126
-    Throws: 420
+    Holes: 135
+    Throws: 447
 
 Johanna:
     Rounds: 8
@@ -29,24 +29,24 @@ Johanna:
     Throws: 261
 
 Hampus "GEOGEW" Sjöholm:
-    Rounds: 3
-    Finished rounds: 2
+    Rounds: 4
+    Finished rounds: 3
     Best round: 34p
     Worst round: 40p
-    Average total: 37.00p
-    Score change per round played: 6.00p
-    Holes: 26
-    Throws: 103
+    Average total: 36.00p
+    Score change per round played: 0.00p
+    Holes: 35
+    Throws: 137
 
 Jon "Klirr i Kassan" Runeke:
-    Rounds: 7
-    Finished rounds: 5
+    Rounds: 8
+    Finished rounds: 6
     Best round: 27p
     Worst round: 35p
-    Average total: 31.00p
-    Score change per round played: -1.20p
-    Holes: 59
-    Throws: 203
+    Average total: 30.83p
+    Score change per round played: -0.83p
+    Holes: 68
+    Throws: 233
 
 Filip "boissons":
     Rounds: 2
