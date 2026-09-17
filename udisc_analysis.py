@@ -169,10 +169,7 @@ def filter_df(
     return df
 
 
-def plot_distribution(df, output_path):
-    score_counts = df["ScoreType"].value_counts()
-
-    # Define the desired order
+def prepare_distribution(df):
     custom_order = [
         "Worse than triple bogey",
         "Triple Bogey",
@@ -186,121 +183,290 @@ def plot_distribution(df, output_path):
         "Hole-in-one",
     ]
 
-    # Reindex with custom order and drop missing ones
-    score_counts = score_counts.reindex(custom_order).dropna()
+    score_counts = (
+        df["ScoreType"]
+        .value_counts()
+        .reindex(custom_order)
+        .dropna()
+        .rename_axis("ScoreType")
+        .reset_index(name="Count")
+    )
 
-    sns.set_theme(palette="pastel")
+    return score_counts
 
-    # Custom colors based on score quality
-    color_map = {
-        "Worse than triple bogey": "#8B0000",  # dark red
-        "Triple Bogey": "#B22222",  # firebrick
-        "Double Bogey": "#DC143C",  # crimson
-        "Bogey": "#FF6347",  # tomato
-        "Par": "#32CD32",  # lime green
-        "Birdie": "#7CFC00",  # lawn green
-        "Eagle": "#228B22",  # forest green
-        "Albatross": "#00CED1",  # dark turquoise
-        "Condor": "#1E90FF",  # dodger blue
-        "Hole-in-one": "#9370DB",  # medium purple
+
+def prepare_performance_curve(
+    df,
+    par_df,
+    players,
+    stat,
+    hide_par,
+    x_axis_mode,
+    hide_avg,
+    smoothness,
+):
+    if players[0] == "All":
+        players = list(df["PlayerName"].unique())
+
+    df = df.copy()
+
+    if x_axis_mode == "round":
+        unique_dates = sorted(df["StartDate"].unique())
+        date_to_round = {
+            date: idx + 1
+            for idx, date in enumerate(unique_dates)
+        }
+        df["RoundIndex"] = df["StartDate"].map(date_to_round)
+
+    x_col = "RoundIndex" if x_axis_mode == "round" else "StartDate"
+
+    players_data = []
+
+    for player in players:
+        player_df = df[df["PlayerName"] == player].copy()
+
+        if smoothness > 1:
+            player_df[stat] = (
+                player_df[stat]
+                .rolling(window=smoothness, min_periods=1)
+                .mean()
+            )
+
+        players_data.append({
+            "player": player,
+            "data": player_df[[x_col, stat]].copy(),
+            "average": player_df[stat].mean(),
+        })
+
+    return {
+        "players": players_data,
+        "x": x_col,
+        "stat": stat,
+        "par": None if hide_par else par_df.iloc[0][stat],
+        "hide_avg": hide_avg,
+        "x_axis_label": (
+            "Round number"
+            if x_axis_mode == "round"
+            else "Date"
+        ),
     }
 
-    colors = [color_map[label] for label in score_counts.index]
 
-    # Show raw counts in the pie chart
-    def make_label(pct, all_vals):
-        absolute = int(round(pct / 100.0 * sum(all_vals)))
+def prepare_hole_distribution(df, par_df):
+    # Score observations, one row per attempt
+    scores = (
+        df[["Hole", "Score"]]
+        .dropna()
+        .copy()
+    )
+
+    # Mean score for each hole
+    averages = (
+        scores
+        .groupby("Hole", as_index=False)["Score"]
+        .mean()
+        .rename(columns={"Score": "AverageScore"})
+    )
+
+    # Par score for each hole
+    par = (
+        par_df[["Hole", "Score"]]
+        .dropna()
+        .rename(columns={"Score": "Par"})
+    )
+
+    return {
+        "scores": scores,
+        "averages": averages,
+        "par": par,
+    }
+
+
+def calculate_basic_stats(df_holes, df_rounds):
+    df_rounds = df_rounds.sort_values(by="StartDate")
+
+    df_finished_rounds = df_rounds[df_rounds["Total"] != 0]
+
+    stats = {
+        "rounds": len(df_rounds),
+        "finished_rounds": len(df_finished_rounds),
+        "best_round": df_finished_rounds["Total"].min(),
+        "worst_round": df_finished_rounds["Total"].max(),
+        "average_total": df_finished_rounds["Total"].mean(),
+        "score_change_per_round": 0,
+        "holes": len(df_holes),
+        "throws": df_holes["Score"].sum(),
+        "players": {},
+    }
+
+    if len(df_finished_rounds) > 1:
+        x = np.arange(len(df_finished_rounds))
+        y = df_finished_rounds["Total"].to_numpy()
+        stats["score_change_per_round"] = np.polyfit(x, y, deg=1)[0]
+
+    for player in df_rounds["PlayerName"].unique():
+        df_rounds_player = df_rounds[
+            df_rounds["PlayerName"] == player
+        ]
+        df_finished_rounds_player = df_finished_rounds[
+            df_finished_rounds["PlayerName"] == player
+        ]
+        df_holes_player = df_holes[
+            df_holes["PlayerName"] == player
+        ]
+
+        player_stats = {
+            "rounds": len(df_rounds_player),
+            "finished_rounds": len(df_finished_rounds_player),
+            "best_round": df_finished_rounds_player["Total"].min(),
+            "worst_round": df_finished_rounds_player["Total"].max(),
+            "average_total": df_finished_rounds_player["Total"].mean(),
+            "score_change_per_round": 0,
+            "holes": len(df_holes_player),
+            "throws": df_holes_player["Score"].sum(),
+        }
+
+        if len(df_finished_rounds_player) > 1:
+            x = np.arange(len(df_finished_rounds_player))
+            y = df_finished_rounds_player["Total"].to_numpy()
+            player_stats["score_change_per_round"] = np.polyfit(
+                x, y, deg=1
+            )[0]
+
+        stats["players"][player] = player_stats
+
+    return stats
+
+
+def format_basic_stats(stats):
+    lines = []
+
+    lines.append("----- Basic overview -----")
+    lines.append(f"Rounds: {stats['rounds']}")
+    lines.append(f"Finished rounds: {stats['finished_rounds']}")
+    lines.append(f"Best round: {stats['best_round']}p")
+    lines.append(f"Worst round: {stats['worst_round']}p")
+    lines.append(f"Average total: {stats['average_total']:.2f}p")
+    lines.append(
+        f"Score change per round played: "
+        f"{stats['score_change_per_round']:.2f}p"
+    )
+    lines.append(f"Holes: {stats['holes']}")
+    lines.append(f"Throws: {stats['throws']}")
+
+    for player, player_stats in stats["players"].items():
+        lines.append("")
+        lines.append(f"{player}:")
+        lines.append(f"    Rounds: {player_stats['rounds']}")
+        lines.append(
+            f"    Finished rounds: "
+            f"{player_stats['finished_rounds']}"
+        )
+        lines.append(
+            f"    Best round: {player_stats['best_round']}p"
+        )
+        lines.append(
+            f"    Worst round: {player_stats['worst_round']}p"
+        )
+        lines.append(
+            f"    Average total: "
+            f"{player_stats['average_total']:.2f}p"
+        )
+        lines.append(
+            f"    Score change per round played: "
+            f"{player_stats['score_change_per_round']:.2f}p"
+        )
+        lines.append(f"    Holes: {player_stats['holes']}")
+        lines.append(f"    Throws: {player_stats['throws']}")
+
+    return "\n".join(lines)
+
+
+def render_distribution_matplotlib(score_counts, output_path=None):
+    sns.set_theme(palette="pastel")
+
+    color_map = {
+        "Worse than triple bogey": "#8B0000",
+        "Triple Bogey": "#B22222",
+        "Double Bogey": "#DC143C",
+        "Bogey": "#FF6347",
+        "Par": "#32CD32",
+        "Birdie": "#7CFC00",
+        "Eagle": "#228B22",
+        "Albatross": "#00CED1",
+        "Condor": "#1E90FF",
+        "Hole-in-one": "#9370DB",
+    }
+
+    colors = [
+        color_map[label]
+        for label in score_counts["ScoreType"]
+    ]
+
+    def make_label(pct):
+        absolute = int(
+            round(
+                pct / 100.0
+                * score_counts["Count"].sum()
+            )
+        )
         return f"{pct:.1f}%\n({absolute})"
 
-    labels = [f"{label}" for label in score_counts.index]
-    autopct = lambda pct: make_label(pct, score_counts)
-
     plt.pie(
-        score_counts,
-        labels=labels,
-        autopct=autopct,
+        score_counts["Count"],
+        labels=score_counts["ScoreType"],
+        autopct=make_label,
         startangle=90,
         textprops={"fontsize": 12},
         colors=colors,
     )
 
     plt.title("Score Distribution")
+
     if output_path:
         plt.savefig(output_path, dpi=100)
     else:
         plt.show()
 
 
-def plot_performance_curve(
-    df, par_df, players, stat, output_path, hide_par, x_axis_mode, hide_avg, smoothness
-):
+def render_performance_matplotlib(plot_data, output_path=None):
     sns.set_theme(style="ticks", palette="pastel")
 
-    if players[0] == "All":
-        players = list(df["PlayerName"].unique())
-
-    # Marker styles
     marker_styles = [
-        "o",
-        "s",
-        "D",
-        "^",
-        "v",
-        "<",
-        ">",
-        "P",
-        "X",
-        "*",
-        "+",
-        "H",
-        "1",
-        "2",
-        "3",
-        "4",
+        "o", "s", "D", "^", "v", "<", ">",
+        "P", "X", "*", "+", "H", "1", "2", "3", "4"
     ]
+
     marker_cycle = itertools.cycle(marker_styles)
 
-    # Shared round index for all players
-    if x_axis_mode == "round":
-        # Get unique sorted dates and assign a round number
-        unique_dates = sorted(df["StartDate"].unique())
-        date_to_round = {date: idx + 1 for idx, date in enumerate(unique_dates)}
-        df["RoundIndex"] = df["StartDate"].map(date_to_round)
-
-    for player in players:
-        player_df = df[df["PlayerName"] == player].copy()
-
-        x_col = "RoundIndex" if x_axis_mode == "round" else "StartDate"
+    for player_data in plot_data["players"]:
+        player = player_data["player"]
+        data = player_data["data"]
         marker = next(marker_cycle)
 
-        # Add rolling window average
-        if smoothness > 1:
-            player_df[stat] = (
-                player_df[stat].rolling(window=smoothness, min_periods=1).mean()
-            )
-
-        # Plot stat for player
         line = sns.lineplot(
-            data=player_df, x=x_col, y=stat, label=player, marker=marker, alpha=0.8
+            data=data,
+            x=plot_data["x"],
+            y=plot_data["stat"],
+            label=player,
+            marker=marker,
+            alpha=0.8,
         )
 
-        # Plot a line for the average
-        if not hide_avg:
-            player_average = player_df[stat].mean()
-            player_color = line.lines[
-                -1
-            ].get_color()  # To get same color as the lineplot above
+        if not plot_data["hide_avg"]:
+            player_color = line.lines[-1].get_color()
+
             plt.axhline(
-                y=player_average,
+                y=player_data["average"],
                 linewidth=0.8,
                 alpha=0.8,
                 color=player_color,
                 linestyle="--",
             )
 
-    if not hide_par:
+    if plot_data["par"] is not None:
         plt.axhline(
-            y=par_df.iloc[0][stat],
+            y=plot_data["par"],
             label="Par",
             linewidth=2.5,
             alpha=0.8,
@@ -308,42 +474,62 @@ def plot_performance_curve(
             linestyle="--",
         )
 
-    x_axis_label = "Round number" if x_axis_mode == "round" else "Date"
-    plt.xlabel(x_axis_label)
-    plt.title(f"Performance Curve")
+    plt.xlabel(plot_data["x_axis_label"])
+    plt.title("Performance Curve")
     plt.legend()
+
     if output_path:
         plt.savefig(output_path, dpi=100)
     else:
         plt.show()
 
 
-def plot_hole_distribution(df, par_df, output_path, hide_par):
+def render_hole_distribution_matplotlib(
+    plot_data,
+    output_path=None,
+    hide_par=False,
+):
     sns.set_theme(style="ticks", palette="pastel")
 
-    # Plot score
-    sns.boxplot(x="Hole", y="Score", data=df, order=list(range(0, len(par_df) + 1)))
+    scores = plot_data["scores"]
+    averages = plot_data["averages"]
+    par = plot_data["par"]
 
-    # Plot all individual attempts
-    sns.stripplot(data=df, x="Hole", y="Score", size=4, color=".3")
+    holes = sorted(scores["Hole"].unique())
 
-    # Plot average score per hole as a line
-    sns.pointplot(
+    # Box plot
+    sns.boxplot(
         x="Hole",
         y="Score",
-        data=df,
-        estimator="mean",
-        errorbar=None,
-        color="red",
-        marker=""
+        data=scores,
+        order=holes,
     )
 
-    # Plot par
+    # Individual attempts
+    sns.stripplot(
+        data=scores,
+        x="Hole",
+        y="Score",
+        size=4,
+        color=".3",
+    )
+
+    # Average score
+    sns.pointplot(
+        x="Hole",
+        y="AverageScore",
+        data=averages,
+        errorbar=None,
+        color="red",
+        marker="",
+    )
+
+    # Par
     if not hide_par:
         sns.scatterplot(
             x="Hole",
-            y="Score",
-            data=par_df,
+            y="Par",
+            data=par,
             label="Par",
             zorder=5,
             s=100,
@@ -354,9 +540,11 @@ def plot_hole_distribution(df, par_df, output_path, hide_par):
         )
 
     plt.ylim(bottom=0)
-    y_max = int(df["Score"].max()) + 1
-    plt.yticks(list(range(0, y_max + 1)))
-    plt.title(f"Distribution per Hole")
+
+    y_max = int(scores["Score"].max()) + 1
+    plt.yticks(range(0, y_max + 1))
+
+    plt.title("Distribution per Hole")
     plt.grid(True)
 
     if output_path:
@@ -366,60 +554,9 @@ def plot_hole_distribution(df, par_df, output_path, hide_par):
 
 
 def print_basic_stats(df_holes, df_rounds, output_file):
-    # Needs to be sorted to be able to calculate improvement
-    df_rounds = df_rounds.sort_values(by="StartDate")
+    stats = calculate_basic_stats(df_holes, df_rounds)
+    output_text = format_basic_stats(stats)
 
-    lines = []
-    lines.append("----- Basic overview -----")
-    df_finished_rounds = df_rounds[df_rounds["Total"] != 0]
-    lines.append(f"Rounds: {len(df_rounds)}")
-    lines.append(f"Finished rounds: {len(df_finished_rounds)}")
-    lines.append(f"Best round: {df_finished_rounds['Total'].min()}p")
-    lines.append(f"Worst round: {df_finished_rounds['Total'].max()}p")
-    lines.append(f"Average total: {df_finished_rounds['Total'].mean():.2f}p")
-
-    x = np.array(range(0, len(df_finished_rounds)))
-    improvement = 0
-    if len(x) != 1:
-        y = df_finished_rounds["Total"].to_numpy()
-        improvement = np.polyfit(x, y, deg=1)[0]
-
-    lines.append(f"Score change per round played: {improvement:.2f}p")
-    lines.append(f"Holes: {len(df_holes)}")
-    lines.append(f"Throws: {df_holes['Score'].sum()}")
-
-    players = df_rounds["PlayerName"].unique()
-    for player in players:
-        df_rounds_player = df_rounds[df_rounds["PlayerName"] == player]
-        df_finished_rounds_player = df_finished_rounds[
-            df_finished_rounds["PlayerName"] == player
-        ]
-        df_holes_player = df_holes[df_holes["PlayerName"] == player]
-
-        lines.append("")
-        lines.append(f"{player}:")
-        lines.append(f"    Rounds: {len(df_rounds_player)}")
-        lines.append(f"    Finished rounds: {len(df_finished_rounds_player)}")
-        lines.append(f"    Best round: {df_finished_rounds_player['Total'].min()}p")
-        lines.append(f"    Worst round: {df_finished_rounds_player['Total'].max()}p")
-        lines.append(
-            f"    Average total: {df_finished_rounds_player['Total'].mean():.2f}p"
-        )
-
-        x = np.array(range(0, len(df_finished_rounds_player)))
-        improvement = 0
-        if len(x) > 1:
-            y = df_finished_rounds_player["Total"].to_numpy()
-            improvement = np.polyfit(x, y, deg=1)[0]
-
-        lines.append(f"    Score change per round played: {improvement:.2f}p")
-        lines.append(f"    Holes: {len(df_holes_player)}")
-        lines.append(f"    Throws: {df_holes_player['Score'].sum()}")
-
-    # Join everything into a single string
-    output_text = "\n".join(lines)
-
-    # Save to file if output is a string path, else print
     if output_file:
         with open(output_file, "w") as f:
             f.write(output_text + "\n")
@@ -433,7 +570,9 @@ def score_distribution(args):
     df = filter_df(df, args.course, args.layout, args.after, args.before, args.players)
     df = convert_to_score_distribution(df, par_df)
 
-    plot_distribution(df, args.output)
+    score_counts = prepare_distribution(df)
+
+    render_distribution_matplotlib(score_counts, args.output)
 
 
 def performance_curve(args):
@@ -450,17 +589,18 @@ def performance_curve(args):
     )
     par_df = filter_df(par_df, args.course, args.layout, stat=args.stat)
 
-    plot_performance_curve(
+    plot_data = prepare_performance_curve(
         df,
         par_df,
         args.players,
         args.stat,
-        args.output,
         args.hide_par,
         args.x_axis_mode,
         args.hide_avg,
         args.smoothness,
     )
+
+    render_performance_matplotlib(plot_data, args.output)
 
 
 def hole_distribution(args):
@@ -471,7 +611,9 @@ def hole_distribution(args):
     )
     par_df = filter_df(par_df, args.course, args.layout)
 
-    plot_hole_distribution(df, par_df, args.output, args.hide_par)
+    plot_data = prepare_hole_distribution(df, par_df)
+
+    render_hole_distribution_matplotlib(plot_data, args.output, args.hide_par)
 
 
 def basic_stats(args):
