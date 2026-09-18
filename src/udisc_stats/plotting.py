@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-def render_distribution_matplotlib(score_counts, output_path=None):
+def render_distribution_matplotlib(score_counts):
     sns.set_theme(palette="pastel")
 
     color_map = {
@@ -25,6 +25,8 @@ def render_distribution_matplotlib(score_counts, output_path=None):
         for label in score_counts["ScoreType"]
     ]
 
+    fig, ax = plt.subplots()
+
     def make_label(pct):
         absolute = int(
             round(
@@ -34,7 +36,7 @@ def render_distribution_matplotlib(score_counts, output_path=None):
         )
         return f"{pct:.1f}%\n({absolute})"
 
-    plt.pie(
+    ax.pie(
         score_counts["Count"],
         labels=score_counts["ScoreType"],
         autopct=make_label,
@@ -43,20 +45,19 @@ def render_distribution_matplotlib(score_counts, output_path=None):
         colors=colors,
     )
 
-    plt.title("Score Distribution")
+    ax.set_title("Score Distribution")
 
-    if output_path:
-        plt.savefig(output_path, dpi=100)
-    else:
-        plt.show()
+    return fig
 
 
-def render_performance_matplotlib(plot_data, output_path=None):
+def render_performance_matplotlib(plot_data):
     sns.set_theme(style="ticks", palette="pastel")
+
+    fig, ax = plt.subplots()
 
     marker_styles = [
         "o", "s", "D", "^", "v", "<", ">",
-        "P", "X", "*", "+", "H", "1", "2", "3", "4"
+        "P", "X", "*", "+", "H", "1", "2", "3", "4",
     ]
 
     marker_cycle = itertools.cycle(marker_styles)
@@ -73,12 +74,13 @@ def render_performance_matplotlib(plot_data, output_path=None):
             label=player,
             marker=marker,
             alpha=0.8,
+            ax=ax,
         )
 
         if not plot_data["hide_avg"]:
             player_color = line.lines[-1].get_color()
 
-            plt.axhline(
+            ax.axhline(
                 y=player_data["average"],
                 linewidth=0.8,
                 alpha=0.8,
@@ -87,7 +89,7 @@ def render_performance_matplotlib(plot_data, output_path=None):
             )
 
     if plot_data["par"] is not None:
-        plt.axhline(
+        ax.axhline(
             y=plot_data["par"],
             label="Par",
             linewidth=2.5,
@@ -96,19 +98,15 @@ def render_performance_matplotlib(plot_data, output_path=None):
             linestyle="--",
         )
 
-    plt.xlabel(plot_data["x_axis_label"])
-    plt.title("Performance Curve")
-    plt.legend()
+    ax.set_xlabel(plot_data["x_axis_label"])
+    ax.set_title("Performance Curve")
+    ax.legend()
 
-    if output_path:
-        plt.savefig(output_path, dpi=100)
-    else:
-        plt.show()
+    return fig
 
 
 def render_hole_distribution_matplotlib(
     plot_data,
-    output_path=None,
     hide_par=False,
 ):
     sns.set_theme(style="ticks", palette="pastel")
@@ -119,12 +117,15 @@ def render_hole_distribution_matplotlib(
 
     holes = sorted(scores["Hole"].unique())
 
+    fig, ax = plt.subplots()
+
     # Box plot
     sns.boxplot(
         x="Hole",
         y="Score",
         data=scores,
         order=holes,
+        ax=ax,
     )
 
     # Individual attempts
@@ -134,6 +135,7 @@ def render_hole_distribution_matplotlib(
         y="Score",
         size=4,
         color=".3",
+        ax=ax,
     )
 
     # Average score
@@ -144,6 +146,7 @@ def render_hole_distribution_matplotlib(
         errorbar=None,
         color="red",
         marker="",
+        ax=ax,
     )
 
     # Par
@@ -159,18 +162,15 @@ def render_hole_distribution_matplotlib(
             facecolors="none",
             edgecolor="green",
             alpha=0.7,
+            ax=ax,
         )
 
-    plt.ylim(bottom=0)
+    ax.set_ylim(bottom=0)
 
     y_max = int(scores["Score"].max()) + 1
-    plt.yticks(range(0, y_max + 1))
+    ax.set_yticks(range(0, y_max + 1))
 
-    plt.title("Distribution per Hole")
-    plt.grid(True)
+    ax.set_title("Distribution per Hole")
+    ax.grid(True)
 
-    if output_path:
-        plt.savefig(output_path, dpi=100)
-    else:
-        plt.show()
-
+    return fig

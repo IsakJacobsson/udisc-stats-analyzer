@@ -2,6 +2,7 @@ import argparse
 from enum import Enum
 
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from .analysis import (
     get_basic_stats,
@@ -53,7 +54,12 @@ def score_distribution(args):
         before=args.before,
     )
 
-    render_distribution_matplotlib(score_counts, args.output)
+    fig = render_distribution_matplotlib(score_counts)
+
+    if args.output:
+        fig.savefig(args.output, dpi=100)
+    else:
+        plt.show()
 
 
 def performance_curve(args):
@@ -71,10 +77,12 @@ def performance_curve(args):
         smoothness=args.smoothness,
     )
 
-    render_performance_matplotlib(
-        plot_data,
-        args.output,
-    )
+    fig = render_performance_matplotlib(plot_data)
+
+    if args.output:
+        fig.savefig(args.output, dpi=100)
+    else:
+        plt.show()
 
 
 def hole_distribution(args):
@@ -87,7 +95,12 @@ def hole_distribution(args):
         before=args.before,
     )
 
-    render_hole_distribution_matplotlib(plot_data, args.output, args.hide_par)
+    fig = render_hole_distribution_matplotlib(plot_data, args.hide_par)
+
+    if args.output:
+        fig.savefig(args.output, dpi=100)
+    else:
+        plt.show()
 
 
 def basic_stats(args):
