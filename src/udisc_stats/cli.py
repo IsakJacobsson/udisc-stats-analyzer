@@ -1,13 +1,13 @@
 import argparse
 from enum import Enum
 
+import pandas as pd
+
 from .analysis import (
-    calculate_basic_stats,
-    convert_to_score_distribution,
-    format_basic_stats,
-    prepare_distribution,
-    prepare_hole_distribution,
-    prepare_performance_curve,
+    get_basic_stats,
+    get_hole_distribution,
+    get_distribution,
+    get_performance_curve,
 )
 from .data import filter_df, generate_dataframe
 from .plotting import (
@@ -44,66 +44,50 @@ def valid_date(s):
 
 
 def score_distribution(args):
-    df, par_df = generate_dataframe(args.csv_dir)
-
-    df = filter_df(df, args.course, args.layout, args.after, args.before, args.players)
-    df = convert_to_score_distribution(df, par_df)
-
-    score_counts = prepare_distribution(df)
+    score_counts = get_distribution(
+        csv_dir=args.csv_dir,
+        course=args.course,
+        layout=args.layout,
+        players=args.players,
+        after=args.after,
+        before=args.before,
+    )
 
     render_distribution_matplotlib(score_counts, args.output)
 
 
 def performance_curve(args):
-    df, par_df = generate_dataframe(args.csv_dir, mode="round")
-
-    df = filter_df(
-        df,
-        args.course,
-        args.layout,
-        args.after,
-        args.before,
+    plot_data = get_performance_curve(
+        csv_dir=args.csv_dir,
+        course=args.course,
+        layout=args.layout,
         players=args.players,
+        after=args.after,
+        before=args.before,
         stat=args.stat,
-    )
-    par_df = filter_df(par_df, args.course, args.layout, stat=args.stat)
-
-    plot_data = prepare_performance_curve(
-        df,
-        par_df,
-        args.players,
-        args.stat,
-        args.hide_par,
-        args.x_axis_mode,
-        args.hide_avg,
-        args.smoothness,
+        hide_par=args.hide_par,
+        x_axis_mode=args.x_axis_mode,
+        hide_avg=args.hide_avg,
+        smoothness=args.smoothness,
     )
 
-    render_performance_matplotlib(plot_data, args.output)
+    render_performance_matplotlib(
+        plot_data,
+        args.output,
+    )
 
 
 def hole_distribution(args):
-    df, par_df = generate_dataframe(args.csv_dir)
-
-    df = filter_df(
-        df, args.course, args.layout, args.after, args.before, players=args.players
+    plot_data = get_hole_distribution(
+        csv_dir=args.csv_dir,
+        course=args.course,
+        layout=args.layout,
+        players=args.players,
+        after=args.after,
+        before=args.before,
     )
-    par_df = filter_df(par_df, args.course, args.layout)
-
-    plot_data = prepare_hole_distribution(df, par_df)
 
     render_hole_distribution_matplotlib(plot_data, args.output, args.hide_par)
-
-
-def print_basic_stats(df_holes, df_rounds, output_file):
-    stats = calculate_basic_stats(df_holes, df_rounds)
-    output_text = format_basic_stats(stats)
-
-    if output_file:
-        with open(output_file, "w") as f:
-            f.write(output_text + "\n")
-    else:
-        print(output_text)
 
 
 def basic_stats(args):
@@ -127,7 +111,13 @@ def basic_stats(args):
         players=args.players,
     )
 
-    print_basic_stats(df_holes, df_rounds, args.output)
+    output_text = get_basic_stats(df_holes, df_rounds)
+
+    if args.output:
+        with open(args.output, "w") as f:
+            f.write(output_text + "\n")
+    else:
+        print(output_text)
 
 
 def add_arguments(parser, *args):
@@ -166,8 +156,9 @@ def add_arguments(parser, *args):
         parser.add_argument(
             "-p",
             "--player",
+            dest="players",
             action="append",
-            default=None,
+            default=["All"],
             help="Player name(s) to filter by (e.g., -p Alice -p Bob). Defaults to 'All'.",
         )
     if Arg.AFTER in args:
@@ -297,9 +288,6 @@ def main():
     )
 
     args = parser.parse_args()
-
-    # Needs to be set to ["All"] if not set
-    args.players = args.player if args.player is not None else ["All"]
 
     command_handlers = {
         "score-distribution": score_distribution,

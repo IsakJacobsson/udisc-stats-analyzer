@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 
+from .data import filter_df, generate_dataframe
+
 
 def convert_to_score_distribution(df, par_df):
     distribution = []
@@ -36,6 +38,22 @@ def convert_to_score_distribution(df, par_df):
     return pd.DataFrame(distribution)
 
 
+def get_distribution(
+    csv_dir,
+    course,
+    layout,
+    players,
+    after=None,
+    before=None,
+):
+    df, par_df = generate_dataframe(csv_dir)
+
+    df = filter_df(df, course, layout, after, before, players)
+    df = convert_to_score_distribution(df, par_df)
+
+    return prepare_distribution(df)
+
+
 def prepare_distribution(df):
     custom_order = [
         "Worse than triple bogey",
@@ -60,6 +78,50 @@ def prepare_distribution(df):
     )
 
     return score_counts
+
+
+def get_performance_curve(
+    csv_dir,
+    course,
+    layout,
+    players,
+    after=None,
+    before=None,
+    stat="Total",
+    hide_par=False,
+    x_axis_mode="round",
+    hide_avg=False,
+    smoothness=1,
+):
+    df, par_df = generate_dataframe(csv_dir, mode="round")
+
+    df = filter_df(
+        df,
+        course,
+        layout,
+        after,
+        before,
+        players=players,
+        stat=stat,
+    )
+
+    par_df = filter_df(
+        par_df,
+        course,
+        layout,
+        stat=stat,
+    )
+
+    return prepare_performance_curve(
+        df,
+        par_df,
+        players,
+        stat,
+        hide_par,
+        x_axis_mode,
+        hide_avg,
+        smoothness,
+    )
 
 
 def prepare_performance_curve(
@@ -119,6 +181,24 @@ def prepare_performance_curve(
     }
 
 
+def get_hole_distribution(
+    csv_dir,
+    course,
+    layout,
+    players,
+    before=None,
+    after=None,
+):
+    df, par_df = generate_dataframe(csv_dir)
+
+    df = filter_df(
+        df, course, layout, after, before, players=players
+    )
+    par_df = filter_df(par_df, course, layout)
+
+    return prepare_hole_distribution(df, par_df)
+
+
 def prepare_hole_distribution(df, par_df):
     # Score observations, one row per attempt
     scores = (
@@ -147,6 +227,11 @@ def prepare_hole_distribution(df, par_df):
         "averages": averages,
         "par": par,
     }
+
+
+def get_basic_stats(df_holes, df_rounds):
+    stats = calculate_basic_stats(df_holes, df_rounds)
+    return format_basic_stats(stats)
 
 
 def calculate_basic_stats(df_holes, df_rounds):
