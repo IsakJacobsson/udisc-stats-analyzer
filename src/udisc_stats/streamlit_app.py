@@ -1,5 +1,10 @@
+import sys
 import streamlit as st
 from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT / "src"))
+DEFAULT_DATA_DIR = PROJECT_ROOT / "score_cards"
 
 from udisc_stats.analysis import (
     get_basic_stats,
@@ -13,10 +18,6 @@ from udisc_stats.plotting import (
     render_hole_distribution_matplotlib,
     render_performance_matplotlib,
 )
-
-
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_DATA_DIR = PROJECT_ROOT / "score_cards"
 
 
 st.set_page_config(
