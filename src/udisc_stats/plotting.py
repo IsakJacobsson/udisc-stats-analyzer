@@ -115,7 +115,7 @@ def render_hole_distribution_matplotlib(
     averages = plot_data["averages"]
     par = plot_data["par"]
 
-    holes = sorted(scores["Hole"].unique())
+    holes = sorted(par["Hole"].unique())
 
     fig, ax = plt.subplots()
 
@@ -133,6 +133,7 @@ def render_hole_distribution_matplotlib(
         data=scores,
         x="Hole",
         y="Score",
+        order=holes,
         size=4,
         color=".3",
         ax=ax,
@@ -143,6 +144,7 @@ def render_hole_distribution_matplotlib(
         x="Hole",
         y="AverageScore",
         data=averages,
+        order=holes,
         errorbar=None,
         color="red",
         marker="",
@@ -151,10 +153,10 @@ def render_hole_distribution_matplotlib(
 
     # Par
     if not hide_par:
-        sns.scatterplot(
-            x="Hole",
-            y="Par",
-            data=par,
+        par_x = [holes.index(hole) for hole in par["Hole"]]
+        ax.scatter(
+            par_x,
+            par["Par"],
             label="Par",
             zorder=5,
             s=100,
@@ -162,7 +164,6 @@ def render_hole_distribution_matplotlib(
             facecolors="none",
             edgecolor="green",
             alpha=0.7,
-            ax=ax,
         )
 
     ax.set_ylim(bottom=0)
