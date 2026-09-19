@@ -6,13 +6,23 @@ import pandas as pd
 def load_and_format_csv(file):
     df = pd.read_csv(file)
 
-    # Normalize smart quotes in all string columns (e.g., PlayerName)
+    # Normalize smart quotes in all string columns
     for col in df.select_dtypes(include=["object"]).columns:
         df[col] = df[col].str.replace("[“”]", '"', regex=True)
 
-    # Set type for StartDate and EndDate
-    df["StartDate"] = pd.to_datetime(df["StartDate"])
-    df["EndDate"] = pd.to_datetime(df["EndDate"])
+    # Normalize timestamps to UTC
+    df["StartDate"] = pd.to_datetime(
+        df["StartDate"],
+        errors="coerce",
+        utc=True,
+    )
+
+    df["EndDate"] = pd.to_datetime(
+        df["EndDate"],
+        errors="coerce",
+        utc=True,
+    )
+
     return df
 
 

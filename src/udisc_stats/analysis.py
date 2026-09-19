@@ -19,20 +19,25 @@ def convert_to_score_distribution(df, par_df):
     }
 
     for _, row in df.iterrows():
-        score_type = ""
-        if row["Score"] == 1:
-            score_type = "Hole-in-one"
-            continue
         if row["Score"] == 0:
             # Skip this value
             continue
-        par_score = par_df[
-            (par_df["CourseName"] == row["CourseName"])
-            & (par_df["LayoutName"] == row["LayoutName"])
-            & (par_df["Hole"] == row["Hole"])
-        ]["Score"].values[0]
-        relative_score = row["Score"] - par_score
-        score_type = score_type_map.get(relative_score, "Worse than triple bogey")
+
+        if row["Score"] == 1:
+            score_type = "Hole-in-one"
+        else:
+            par_score = par_df[
+                (par_df["CourseName"] == row["CourseName"])
+                & (par_df["LayoutName"] == row["LayoutName"])
+                & (par_df["Hole"] == row["Hole"])
+            ]["Score"].values[0]
+
+            relative_score = row["Score"] - par_score
+            score_type = score_type_map.get(
+                relative_score,
+                "Worse than triple bogey"
+            )
+
         distribution.append({"ScoreType": score_type})
 
     return pd.DataFrame(distribution)
