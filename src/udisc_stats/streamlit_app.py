@@ -48,7 +48,7 @@ except Exception as e:
 # Header
 # -------------------------------------------------------------------
 
-st.title("🥏 UDisc Stats Analyzer")
+st.title("UDisc Stats Analyzer")
 
 # -------------------------------------------------------------------
 # Filter options
@@ -173,10 +173,27 @@ with performance_tab:
 
     col1, col2, col3 = st.columns(3)
 
+    # Holes available for the selected course/layout
+    available_holes = sorted(
+        df_holes.loc[
+            (df_holes["CourseName"] == course)
+            & (df_holes["LayoutName"] == layout),
+            "Hole",
+        ]
+        .dropna()
+        .unique()
+        .astype(int)
+    )
+
+    stat_options = ["Total"] + [
+        f"Hole{hole}" for hole in available_holes
+    ]
+
     with col1:
         stat = st.selectbox(
             "Statistic",
-            ["Total"],
+            stat_options,
+            format_func=lambda x: "Total score" if x == "Total" else x.replace("Hole", "Hole "),
         )
 
     with col2:
