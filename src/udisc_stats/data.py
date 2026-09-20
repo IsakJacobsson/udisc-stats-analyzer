@@ -97,10 +97,22 @@ def filter_df(
     if layout_name != "All":
         df = df[df["LayoutName"] == layout_name]
 
-    if after_date:
+    if after_date is not None:
+        after_date = pd.Timestamp(after_date)
+        if after_date.tzinfo is None:
+            after_date = after_date.tz_localize("UTC")
+        else:
+            after_date = after_date.tz_convert("UTC")
+
         df = df[df["StartDate"] >= after_date]
 
-    if before_date:
+    if before_date is not None:
+        before_date = pd.Timestamp(before_date)
+        if before_date.tzinfo is None:
+            before_date = before_date.tz_localize("UTC")
+        else:
+            before_date = before_date.tz_convert("UTC")
+
         df = df[df["StartDate"] <= before_date]
 
     if players and players[0] != "All":
