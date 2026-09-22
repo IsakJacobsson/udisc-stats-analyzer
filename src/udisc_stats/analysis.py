@@ -251,6 +251,7 @@ def calculate_basic_stats(df_holes, df_rounds):
         "worst_round": df_finished_rounds["Total"].max(),
         "average_total": df_finished_rounds["Total"].mean(),
         "score_change_per_round": 0,
+        "next_predicted_score": 0,
         "holes": len(df_holes),
         "throws": df_holes["Score"].sum(),
         "players": {},
@@ -259,15 +260,24 @@ def calculate_basic_stats(df_holes, df_rounds):
     if len(df_finished_rounds) > 1:
         x = np.arange(len(df_finished_rounds))
         y = df_finished_rounds["Total"].to_numpy()
-        stats["score_change_per_round"] = np.polyfit(x, y, deg=1)[0]
+
+        slope, intercept = np.polyfit(x, y, deg=1)
+
+        stats["score_change_per_round"] = slope
+
+        # Predict the next round
+        next_x = len(df_finished_rounds)
+        stats["next_predicted_score"] = intercept + slope * next_x
 
     for player in df_rounds["PlayerName"].unique():
         df_rounds_player = df_rounds[
             df_rounds["PlayerName"] == player
         ]
+
         df_finished_rounds_player = df_finished_rounds[
             df_finished_rounds["PlayerName"] == player
         ]
+
         df_holes_player = df_holes[
             df_holes["PlayerName"] == player
         ]
@@ -279,6 +289,7 @@ def calculate_basic_stats(df_holes, df_rounds):
             "worst_round": df_finished_rounds_player["Total"].max(),
             "average_total": df_finished_rounds_player["Total"].mean(),
             "score_change_per_round": 0,
+            "next_predicted_score": 0,
             "holes": len(df_holes_player),
             "throws": df_holes_player["Score"].sum(),
         }
@@ -286,9 +297,16 @@ def calculate_basic_stats(df_holes, df_rounds):
         if len(df_finished_rounds_player) > 1:
             x = np.arange(len(df_finished_rounds_player))
             y = df_finished_rounds_player["Total"].to_numpy()
-            player_stats["score_change_per_round"] = np.polyfit(
-                x, y, deg=1
-            )[0]
+
+            slope, intercept = np.polyfit(x, y, deg=1)
+
+            player_stats["score_change_per_round"] = slope
+
+            # Predict the player's next round
+            next_x = len(df_finished_rounds_player)
+            player_stats["next_predicted_score"] = (
+                intercept + slope * next_x
+            )
 
         stats["players"][player] = player_stats
 
@@ -307,6 +325,10 @@ def format_basic_stats(stats):
     lines.append(
         f"Score change per round played: "
         f"{stats['score_change_per_round']:.2f}p"
+    )
+    lines.append(
+        f"Next predicted score: "
+        f"{stats['next_predicted_score']:.2f}p"
     )
     lines.append(f"Holes: {stats['holes']}")
     lines.append(f"Throws: {stats['throws']}")
@@ -332,6 +354,10 @@ def format_basic_stats(stats):
         lines.append(
             f"    Score change per round played: "
             f"{player_stats['score_change_per_round']:.2f}p"
+        )
+        lines.append(
+            f"    Next predicted score: "
+            f"{player_stats['next_predicted_score']:.2f}p"
         )
         lines.append(f"    Holes: {player_stats['holes']}")
         lines.append(f"    Throws: {player_stats['throws']}")
