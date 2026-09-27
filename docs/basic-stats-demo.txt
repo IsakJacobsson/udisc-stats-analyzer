@@ -1,22 +1,24 @@
 ----- Basic overview -----
-Rounds: 46
-Finished rounds: 38
+Rounds: 55
+Finished rounds: 47
 Best round: 27p
 Worst round: 46p
-Average total: 32.29p
-Score change per round played: -0.08p
-Holes: 394
-Throws: 1413
+Average total: 32.13p
+Score change per round played: -0.05p
+Next predicted score: 30.83p
+Holes: 475
+Throws: 1696
 
 Isak "Bush Walker" Jacobsson:
-    Rounds: 18
-    Finished rounds: 15
+    Rounds: 21
+    Finished rounds: 18
     Best round: 27p
     Worst round: 39p
-    Average total: 30.07p
-    Score change per round played: -0.33p
-    Holes: 153
-    Throws: 507
+    Average total: 29.89p
+    Score change per round played: -0.25p
+    Next predicted score: 27.56p
+    Holes: 180
+    Throws: 594
 
 Johanna:
     Rounds: 8
@@ -25,28 +27,31 @@ Johanna:
     Worst round: 38p
     Average total: 35.00p
     Score change per round played: -0.21p
+    Next predicted score: 34.14p
     Holes: 67
     Throws: 261
 
 Hampus "GEOGEW" Sjöholm:
-    Rounds: 6
-    Finished rounds: 5
+    Rounds: 9
+    Finished rounds: 8
     Best round: 31p
     Worst round: 40p
-    Average total: 34.20p
-    Score change per round played: -1.40p
-    Holes: 53
-    Throws: 200
+    Average total: 34.38p
+    Score change per round played: -0.32p
+    Next predicted score: 32.93p
+    Holes: 80
+    Throws: 304
 
 Jon "Klirr i Kassan" Runeke:
-    Rounds: 10
-    Finished rounds: 8
+    Rounds: 12
+    Finished rounds: 10
     Best round: 27p
     Worst round: 35p
-    Average total: 30.75p
+    Average total: 30.40p
     Score change per round played: -0.36p
-    Holes: 86
-    Throws: 294
+    Next predicted score: 28.40p
+    Holes: 104
+    Throws: 352
 
 Filip "boissons":
     Rounds: 2
@@ -55,18 +60,9 @@ Filip "boissons":
     Worst round: 46p
     Average total: 46.00p
     Score change per round played: 0.00p
+    Next predicted score: 0.00p
     Holes: 17
     Throws: 83
-
-Peter:
-    Rounds: 1
-    Finished rounds: 1
-    Best round: 33p
-    Worst round: 33p
-    Average total: 33.00p
-    Score change per round played: 0.00p
-    Holes: 9
-    Throws: 33
 
 Gabriel:
     Rounds: 1
@@ -75,5 +71,28 @@ Gabriel:
     Worst round: 35p
     Average total: 35.00p
     Score change per round played: 0.00p
+    Next predicted score: 0.00p
     Holes: 9
     Throws: 35
+
+Peter:
+    Rounds: 1
+    Finished rounds: 1
+    Best round: 33p
+    Worst round: 33p
+    Average total: 33.00p
+    Score change per round played: 0.00p
+    Next predicted score: 0.00p
+    Holes: 9
+    Throws: 33
+
+Felix:
+    Rounds: 1
+    Finished rounds: 1
+    Best round: 34p
+    Worst round: 34p
+    Average total: 34.00p
+    Score change per round played: 0.00p
+    Next predicted score: 0.00p
+    Holes: 9
+    Throws: 34
