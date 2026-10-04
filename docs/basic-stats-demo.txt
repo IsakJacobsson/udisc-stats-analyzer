@@ -1,24 +1,24 @@
 ----- Basic overview -----
-Rounds: 55
-Finished rounds: 47
+Rounds: 56
+Finished rounds: 48
 Best round: 27p
 Worst round: 46p
-Average total: 32.13p
-Score change per round played: -0.05p
-Next predicted score: 30.83p
-Holes: 475
-Throws: 1696
+Average total: 32.04p
+Score change per round played: -0.07p
+Next predicted score: 30.35p
+Holes: 484
+Throws: 1724
 
 Isak "Bush Walker" Jacobsson:
-    Rounds: 21
-    Finished rounds: 18
+    Rounds: 22
+    Finished rounds: 19
     Best round: 27p
     Worst round: 39p
-    Average total: 29.89p
-    Score change per round played: -0.25p
-    Next predicted score: 27.56p
-    Holes: 180
-    Throws: 594
+    Average total: 29.79p
+    Score change per round played: -0.24p
+    Next predicted score: 27.40p
+    Holes: 189
+    Throws: 622
 
 Johanna:
     Rounds: 8
@@ -64,17 +64,6 @@ Filip "boissons":
     Holes: 17
     Throws: 83
 
-Gabriel:
-    Rounds: 1
-    Finished rounds: 1
-    Best round: 35p
-    Worst round: 35p
-    Average total: 35.00p
-    Score change per round played: 0.00p
-    Next predicted score: 0.00p
-    Holes: 9
-    Throws: 35
-
 Peter:
     Rounds: 1
     Finished rounds: 1
@@ -85,6 +74,17 @@ Peter:
     Next predicted score: 0.00p
     Holes: 9
     Throws: 33
+
+Gabriel:
+    Rounds: 1
+    Finished rounds: 1
+    Best round: 35p
+    Worst round: 35p
+    Average total: 35.00p
+    Score change per round played: 0.00p
+    Next predicted score: 0.00p
+    Holes: 9
+    Throws: 35
 
 Felix:
     Rounds: 1
